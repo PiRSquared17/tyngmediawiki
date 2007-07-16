@@ -1,5 +1,0 @@
-bin\Debug\Newtonsoft.Json.dll
-bin\Debug\Newtonsoft.Json.pdb
-obj\Debug\ResolveAssemblyReference.cache
-obj\Debug\Newtonsoft.Json.dll
-obj\Debug\Newtonsoft.Json.pdb
