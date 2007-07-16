@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRHPStubber", "NRHPStubber\NRHPStubber.csproj", "{DC4B85D0-7230-474A-89B0-DBC9DFA222CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tyng.MediaWiki", "Tyng.MediaWiki\Tyng.MediaWiki.csproj", "{E695C4E6-F713-4930-BB17-3CA97A80A90C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tyng.Google", "Tyng.Google\Tyng.Google.csproj", "{F506A5E6-E88A-4842-A2CB-0524B881ECB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newtonsoft.Json", "Newtonsoft.Json\Newtonsoft.Json.csproj", "{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{23FAF6D3-349D-43E5-B200-48E8A9B34EAF}"
+	ProjectSection(SolutionItems) = preProject
+		Tyng-AssemblyInfo.cs = Tyng-AssemblyInfo.cs
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DC4B85D0-7230-474A-89B0-DBC9DFA222CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC4B85D0-7230-474A-89B0-DBC9DFA222CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC4B85D0-7230-474A-89B0-DBC9DFA222CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC4B85D0-7230-474A-89B0-DBC9DFA222CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E695C4E6-F713-4930-BB17-3CA97A80A90C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E695C4E6-F713-4930-BB17-3CA97A80A90C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E695C4E6-F713-4930-BB17-3CA97A80A90C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E695C4E6-F713-4930-BB17-3CA97A80A90C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F506A5E6-E88A-4842-A2CB-0524B881ECB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F506A5E6-E88A-4842-A2CB-0524B881ECB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F506A5E6-E88A-4842-A2CB-0524B881ECB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F506A5E6-E88A-4842-A2CB-0524B881ECB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
