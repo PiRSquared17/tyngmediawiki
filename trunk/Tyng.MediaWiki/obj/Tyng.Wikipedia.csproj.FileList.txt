@@ -1,5 +1,0 @@
-obj\Debug\ResolveAssemblyReference.cache
-bin\Debug\Tyng.MediaWiki.dll
-bin\Debug\Tyng.MediaWiki.pdb
-obj\Debug\Tyng.MediaWiki.dll
-obj\Debug\Tyng.MediaWiki.pdb
