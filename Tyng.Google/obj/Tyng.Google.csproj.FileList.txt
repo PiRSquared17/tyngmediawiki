@@ -1,0 +1,8 @@
+obj\Debug\ResolveAssemblyReference.cache
+bin\Debug\Tyng.Google.dll
+bin\Debug\Tyng.Google.pdb
+bin\Debug\Newtonsoft.Json.dll
+bin\Debug\Newtonsoft.Json.pdb
+bin\Debug\Newtonsoft.Json.xml
+obj\Debug\Tyng.Google.dll
+obj\Debug\Tyng.Google.pdb
