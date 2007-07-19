@@ -29,8 +29,6 @@ namespace NRHPStubber
             _connString = connection.ConnectionString;
         }
 
-        #region Find Matches
-                
         private void FindMatches_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             statusLabel.Text = (string) e.UserState;
@@ -44,24 +42,6 @@ namespace NRHPStubber
             {
                 throw new Exception("Error finding matches", e.Error);
             }
-        }
-        #endregion
-
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            MediaWikiSection section = (MediaWikiSection)ConfigurationManager.GetSection("mediaWiki");
-
-            if (!section.Logins.ContainsKey("NrhpBot"))
-            {
-                string passwordText = null;
-                if (PasswordForm.Show(out passwordText) == DialogResult.OK)
-                {
-             
-                    section.Logins.Add(new ApiLoginSettings("NrhpBot", passwordText));
-                    section.DefaultLoginName = "NrhpBot";
-                }
-            }
-            
         }
 
         private void tsbPossibleArticles_Click(object sender, EventArgs e)
@@ -78,7 +58,7 @@ namespace NRHPStubber
 
         private void tsbStubCounty_Click(object sender, EventArgs e)
         {
-            
+            Stubber.Stub(tstbCounty.Text);
         }
 
         private void bwFindMatches_DoWork(object sender, DoWorkEventArgs e)

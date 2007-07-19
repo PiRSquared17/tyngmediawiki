@@ -153,13 +153,21 @@ namespace NRHPStubber
 
                 if (!string.IsNullOrEmpty(city))
                 {
+                    testName = checkTitle + " (" + city + ")";
+                    bwFindMatches.ReportProgress(0, string.Format("Checking \"{0}\", title \"{1}\"", original, testName));
+                    CheckPage(db, testType + " (City)", testName, refnum);
+
+                    testName = checkTitle + ", " + city;
+                    bwFindMatches.ReportProgress(0, string.Format("Checking \"{0}\", title \"{1}\"", original, testName));
+                    CheckPage(db, testType + ", City", testName, refnum);
+
                     testName = checkTitle + " (" + city + ", " + state + ")";
                     bwFindMatches.ReportProgress(0, string.Format("Checking \"{0}\", title \"{1}\"", original, testName));
                     CheckPage(db, testType + " (City, State)", testName, refnum);
 
                     testName = checkTitle + ", " + city + ", " + state;
                     bwFindMatches.ReportProgress(0, string.Format("Checking \"{0}\", title \"{1}\"", original, testName));
-                    CheckPage(db, testType + " City, State", testName, refnum);
+                    CheckPage(db, testType + ", City, State", testName, refnum);
                 }
             }
         }
