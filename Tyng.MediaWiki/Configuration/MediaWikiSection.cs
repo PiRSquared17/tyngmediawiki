@@ -29,6 +29,9 @@ namespace Tyng.MediaWiki.Configuration
             _properties.Add(_propScriptPath);
             _properties.Add(_propApiName);
             _properties.Add(_propUserAgentFormat);
+            _properties.Add(_propMaximumRedirect);
+            _properties.Add(_propDefaultUser);
+            _properties.Add(_propLogins);
         }
 
         protected override void InitializeDefault()

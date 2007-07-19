@@ -40,7 +40,6 @@ namespace NRHPStubber
             this.pROPMAINBindingNavigator = new System.Windows.Forms.ToolStrip();
             status = new System.Windows.Forms.StatusStrip();
             status.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pROPMAINBindingNavigator)).BeginInit();
             this.pROPMAINBindingNavigator.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -126,10 +125,8 @@ namespace NRHPStubber
             this.Name = "MainForm";
             this.Text = "NRHP Stubber";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.Load += new System.EventHandler(this.MainForm_Load);
             status.ResumeLayout(false);
             status.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pROPMAINBindingNavigator)).EndInit();
             this.pROPMAINBindingNavigator.ResumeLayout(false);
             this.pROPMAINBindingNavigator.PerformLayout();
             this.ResumeLayout(false);

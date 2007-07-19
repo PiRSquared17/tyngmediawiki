@@ -9,7 +9,7 @@ namespace NRHPStubber
 {
     public static class Stubber
     {
-        public static void Stub(string password, string county)
+        public static void Stub(string county)
         {
             TextInfo ti = CultureInfo.CreateSpecificCulture("en").TextInfo;
 
@@ -37,6 +37,12 @@ namespace NRHPStubber
 
             NrhpDatabaseTableAdapters.PossibleArticlesTableAdapter pata = new NRHPStubber.NrhpDatabaseTableAdapters.PossibleArticlesTableAdapter();
             pata.Fill(db.PossibleArticles);
+
+            NrhpDatabaseTableAdapters.OWNERMTableAdapter omta = new NRHPStubber.NrhpDatabaseTableAdapters.OWNERMTableAdapter();
+            omta.Fill(db.OWNERM);
+
+            NrhpDatabaseTableAdapters.OWNERDTableAdapter odta = new NRHPStubber.NrhpDatabaseTableAdapters.OWNERDTableAdapter();
+            odta.Fill(db.OWNERD);
 
             StringBuilder log = new StringBuilder();
 
@@ -136,10 +142,12 @@ namespace NRHPStubber
 
             if (historicDistrict && !r.IsacreNull()) sb.AppendFormat("  | area = {0} acres\n", r.acre);
 
-            sb.Append("  | image =\n  | caption =\n  | location = ");
+            sb.Append("  | image =\n  | caption =\n  | ");
 
             if (r.PrimaryVicinity)
-                sb.Append("Vicinity of ");
+                sb.Append("nearest_city = ");
+            else
+                sb.Append("location = ");
 
             sb.AppendFormat("[[{0}, {1}|{0}]], [[{1}]]\n  | architect = ", ti.ToTitleCase(ti.ToLower(r.PrimaryCity)), ti.ToTitleCase(ti.ToLower(r.PrimaryState)));
 
@@ -180,6 +188,23 @@ namespace NRHPStubber
 
             sb.AppendFormat("\n  | added = [[{0:MMMM} {0:%d}]], [[{0:yyyy}]]", r.certdate);
             NrisCite(cites, sb);
+
+            sb.Append("\n  | governing_body = ");
+
+            NrhpDatabase.OWNERDRow[] owners = r.GetOWNERDRows();
+
+            if (owners.Length > 0)
+            {
+                for (int i = 0; i < owners.Length; i++)
+                {
+                    if(i > 0 && i < owners.Length - 1) sb.Append(", ");
+                    if(i == owners.Length - 1 && i > 0) sb.Append(" and ");
+
+                    sb.Append(ti.ToTitleCase(ti.ToLower(owners[i].OWNERMRow.owner)));
+                }
+
+                NrisCite(cites, sb);
+            }
 
             sb.AppendFormat("\n  | refnum = {0}", r.refnum);
             NrisCite(cites, sb);
