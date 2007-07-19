@@ -104,7 +104,7 @@ namespace NRHPStubber
                 else
                     throw new Exception("Bad search result url \"" + uri.ToString() + "\"");
 
-                Page p = MediaWikiApi.Anonymous.GetPage(pageTitle);
+                Page p = Page.GetPage(pageTitle);
 
                 //don't record non main namespace hits
                 if (p.Namespace == MediaWikiNamespace.Main)
@@ -118,14 +118,8 @@ namespace NRHPStubber
 
             if (!p.IsMissing)
             {
-                //TODO clean this up, this is ghetto, but not looping here to avoid circular
-                if (p.IsRedirect) p = p.Redirect;
-                if (p.IsRedirect) p = p.Redirect;
-                if (p.IsRedirect) p = p.Redirect;
-                if (p.IsRedirect) p = p.Redirect;
-                if (p.IsRedirect) p = p.Redirect;
-                if (p.IsRedirect) throw new InvalidOperationException("Circular or long redirect chain");
-
+                Page redirectTarget = p.FollowRuntimeRedirects();
+                
                 NrhpDatabase.PossibleArticlesDataTable pa = db.PossibleArticles;
 
                 if (pa.FindByrefnumArticleID(refnum, p.Id.Value) == null)
@@ -133,7 +127,7 @@ namespace NRHPStubber
                     NrhpDatabase.PossibleArticlesRow newRow = pa.NewPossibleArticlesRow();
                     newRow.PROPMAINRow = db.PROPMAIN.FindByrefnum(refnum);
                     newRow.ArticleID = p.Id.Value;
-                    newRow.ArticleContent = p.CurrentContent;
+                    newRow.ArticleContent = p.LastRevision.GetContent();
                     newRow.FoundOn = DateTime.Now;
                     newRow.FoundReason = testType;
 
@@ -172,7 +166,7 @@ namespace NRHPStubber
 
         private static void CheckPage(NrhpDatabase db, string testType, string title, int refnum)
         {
-            Page p = MediaWikiApi.Anonymous.GetPage(title);
+            Page p = Page.GetPage(title);
 
             AddPossibleArticle(db, refnum, testType, p);
         }

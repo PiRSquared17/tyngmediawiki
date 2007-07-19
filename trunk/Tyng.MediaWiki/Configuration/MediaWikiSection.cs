@@ -3,24 +3,32 @@ using System.Configuration;
 
 namespace Tyng.MediaWiki.Configuration
 {
-    public sealed class Section : ConfigurationSection
+    public sealed class MediaWikiSection : ConfigurationSection
     {
          // Fields
-        private static readonly ConfigurationProperty _propSleep = new ConfigurationProperty("sleep", typeof(ApiSleepSettingsCollection), null, ConfigurationPropertyOptions.IsDefaultCollection);
+        private static readonly ConfigurationProperty _propSleep = new ConfigurationProperty("sleep", typeof(ApiSleepSettingsCollection), null, ConfigurationPropertyOptions.None);
         private static readonly ConfigurationProperty _propSiteName = new ConfigurationProperty("siteName", typeof(string), "Wikipedia", null, new StringValidator(1), ConfigurationPropertyOptions.None);
         private static readonly ConfigurationProperty _propServer = new ConfigurationProperty("server", typeof(string), "http://en.wikipedia.org", null, new StringValidator(1), ConfigurationPropertyOptions.None);
         private static readonly ConfigurationProperty _propScriptName = new ConfigurationProperty("scriptName", typeof(string), "index.php", null, new StringValidator(1), ConfigurationPropertyOptions.None);
         private static readonly ConfigurationProperty _propScriptPath = new ConfigurationProperty("scriptPath", typeof(string), "/w", null, new StringValidator(1), ConfigurationPropertyOptions.None);
         private static readonly ConfigurationProperty _propApiName = new ConfigurationProperty("apiName", typeof(string), "api.php", null, new StringValidator(1), ConfigurationPropertyOptions.None);
-        
+        private static readonly ConfigurationProperty _propUserAgentFormat = new ConfigurationProperty("userAgent", typeof(string), "{0} (v. {1})", null, new StringValidator(1), ConfigurationPropertyOptions.None);
+        private static readonly ConfigurationProperty _propMaximumRedirect = new ConfigurationProperty("maxRedirectFollow", typeof(int), 5, null, new IntegerValidator(-1, 100), ConfigurationPropertyOptions.None);
+        private static readonly ConfigurationProperty _propDefaultUser = new ConfigurationProperty("defaultLoginName", typeof(string), null, null, new StringValidator(1), ConfigurationPropertyOptions.None);
+        private static readonly ConfigurationProperty _propLogins = new ConfigurationProperty("logins", typeof(ApiLoginSettingsCollection), null, ConfigurationPropertyOptions.None);
+                
         private static ConfigurationPropertyCollection _properties = new ConfigurationPropertyCollection();
 
         // Methods
-        static Section()
+        static MediaWikiSection()
         {
             _properties.Add(_propSleep);
             _properties.Add(_propSiteName);
             _properties.Add(_propServer);
+            _properties.Add(_propScriptName);
+            _properties.Add(_propScriptPath);
+            _properties.Add(_propApiName);
+            _properties.Add(_propUserAgentFormat);
         }
 
         protected override void InitializeDefault()
@@ -39,6 +47,46 @@ namespace Tyng.MediaWiki.Configuration
         }
 
         // Properties
+        [ConfigurationProperty("userAgent", DefaultValue = "{0} (v. {1})")]
+        public string UserAgentFormat
+        {
+            get
+            {
+                return (string)base[_propUserAgentFormat];
+            }
+        }
+
+        [ConfigurationProperty("maxRedirectFollow", DefaultValue = 5)]
+        public int MaxRedirectFollow
+        {
+            get
+            {
+                return (int)base[_propMaximumRedirect];
+            }
+        }
+
+        [ConfigurationProperty("defaultLoginName")]
+        public string DefaultLoginName
+        {
+            get
+            {
+                return (string)base[_propDefaultUser];
+            }
+            set
+            {
+                base[_propDefaultUser] = value;
+            }
+        }
+
+        [ConfigurationProperty("logins")]
+        public ApiLoginSettingsCollection Logins
+        {
+            get
+            {
+                return (ApiLoginSettingsCollection)base[_propLogins];
+            }
+        }
+
         [ConfigurationProperty("sleep")]
         public ApiSleepSettingsCollection Sleep
         {

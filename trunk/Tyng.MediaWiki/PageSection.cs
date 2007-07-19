@@ -1,38 +1,60 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Tyng.MediaWiki
 {
-    public sealed class PageSection
+    public sealed class PageSectionCollection : BindingList<PageSection>, ICloneable
     {
-        const int MinHeadingLevel = 1;
-        const int MaxHeadingLevel = 5;
+        #region Constructors and Factory
+        private PageSectionCollection() { }
 
-        int _headingLevel = 1;
-        string _heading;
-        string _content;
+        private PageSectionCollection(IList<PageSection> list) : base(list) { }
 
-        private PageSection(string heading, int headingLevel, string content)
+        public static PageSectionCollection NewPageSectionCollection()
         {
-            if (headingLevel < MinHeadingLevel || headingLevel > MaxHeadingLevel) throw new ArgumentOutOfRangeException("headingLevel");
-
-            _heading = heading;
-            _headingLevel = headingLevel;
-            _content = content;
+            return new PageSectionCollection();
         }
 
-        public string Heading { get { return _heading; } }
-        public string Content { get { return _content; } }
-        public int HeadingLevel { get { return _headingLevel; } }
-
-        public override string ToString()
+        public static PageSectionCollection GetPageSectionCollection(string content)
         {
-            return string.Format("{0} {1} {0}\n{2}", new string('=', HeadingLevel + 1), Heading, Content);
+            return new PageSectionCollection(ParseSections(content));
+        }
+        #endregion
+
+        public PageSection Add(string content)
+        {
+            PageSection newSection = PageSection.NewPageSection();
+            newSection.Content = content;
+            Add(newSection);
+            return newSection;
         }
 
-        public static PageSection[] ParseSections(string content)
+        public PageSection Add(string heading, int headingLevel, string content)
+        {
+            PageSection newSection = PageSection.NewPageSection();
+            newSection.Heading = heading;
+            newSection.HeadingLevel = headingLevel;
+            newSection.Content = content;
+            Add(newSection);
+            return newSection;
+        }
+
+        internal void RenderContent(StringBuilder sb)
+        {
+            if (this.Count == 0) return;
+
+            foreach (PageSection section in this)
+            {
+                section.RenderContent(sb);
+            }
+        }
+
+        #region Section parsing
+        private static IList<PageSection> ParseSections(string content)
         {
             if (string.IsNullOrEmpty(content)) throw new ArgumentNullException("content");
 
@@ -59,7 +81,7 @@ namespace Tyng.MediaWiki
                             if (sectionContent != null)
                             {
                                 //add section and reset
-                                sections.Add(new PageSection(sectionHeader, headingLevel, sectionContent));
+                                sections.Add(PageSection.GetPageSection(sectionHeader, headingLevel, sectionContent));
                                 sectionHeader = null;
                                 sectionContent = null;
                                 headingLevel = 1;
@@ -75,7 +97,7 @@ namespace Tyng.MediaWiki
                             }
 
                             line = null;
-                        }                        
+                        }
                     }
 
                     if (line != null)
@@ -91,14 +113,14 @@ namespace Tyng.MediaWiki
                 if (sectionContent != null)
                 {
                     //add section and reset
-                    sections.Add(new PageSection(sectionHeader, headingLevel, sectionContent));
+                    sections.Add(PageSection.GetPageSection(sectionHeader, headingLevel, sectionContent));
                     sectionHeader = null;
                     sectionContent = null;
                     headingLevel = 1;
                 }
             }
 
-            return sections.ToArray();
+            return sections;
         }
 
         private static string CleanHeader(string header, int level)
@@ -124,6 +146,147 @@ namespace Tyng.MediaWiki
             }
 
             return total;
+        }
+        #endregion
+
+        #region ICloneable Members
+
+        public PageSectionCollection Clone()
+        {
+            PageSectionCollection clone = new PageSectionCollection();
+            foreach (PageSection section in this)
+            {
+                clone.Add(section.Clone());
+            }
+            return clone;
+        }
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
+
+        #endregion
+    }
+
+    [Serializable]
+    public sealed class PageSection : ICloneable
+    {
+        const int MinHeadingLevel = 1;
+        const int MaxHeadingLevel = 5;
+
+        int _headingLevel = 1;
+        string _heading;
+        string _content;
+
+        #region Constructors and Factory
+        private PageSection()
+        {
+            _headingLevel = 1;
+            _heading = null;
+            _content = string.Empty;
+        }
+
+        private PageSection(string content)
+        {
+            _headingLevel = 1;
+            _heading = null;
+            _content = content;
+        }
+        private PageSection(string heading, int headingLevel, string content)
+        {
+            if (headingLevel < MinHeadingLevel || headingLevel > MaxHeadingLevel) throw new ArgumentOutOfRangeException("headingLevel");
+
+            _heading = heading;
+            _headingLevel = headingLevel;
+            _content = content;
+        }
+
+        public static PageSection NewPageSection()
+        {
+            return new PageSection();
+        }
+
+        public static PageSection GetPageSection(string content)
+        {
+            return new PageSection(content);
+        }
+
+        public static PageSection GetPageSection(string heading, int headingLevel, string content)
+        {
+            return new PageSection(heading, headingLevel, content);
+        }
+        #endregion
+
+        public void AppendContent(string newContent)
+        {
+            if (string.IsNullOrEmpty(_content)) 
+                _content = newContent;
+            else
+                _content += newContent;
+        }
+
+        public string Heading 
+        { 
+            get 
+            { 
+                return _heading; 
+            }
+            set
+            {
+                _heading = value;
+            }
+        }
+        public string Content 
+        { 
+            get 
+            { return _content; }
+            set
+            {
+                _content = value;
+            }
+        }
+        public int HeadingLevel
+        { 
+            get 
+            { 
+                return _headingLevel; 
+            }
+            set
+            {
+                if (value < MinHeadingLevel || value > MaxHeadingLevel) throw new ArgumentOutOfRangeException("value");
+
+                _headingLevel = value;
+            }
+        }
+
+        #region ICloneable Members
+
+        public PageSection Clone()
+        {
+            PageSection o = (PageSection)Activator.CreateInstance(typeof(PageSection), true);
+            o._heading = _heading;
+            o._headingLevel = _headingLevel;
+            o._content = _content;
+            return o;
+        }
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
+
+        #endregion
+
+        internal void RenderContent(StringBuilder sb)
+        {
+            if (string.IsNullOrEmpty(Heading))
+            {
+                sb.Append(Content);
+                return;
+            }
+
+            sb.AppendFormat("{0} {1} {0}\n{2}", new string('=', HeadingLevel + 1), Heading, Content);
         }
     }
 }
