@@ -35,7 +35,9 @@ namespace NRHPStubber
             NrhpDatabaseTableAdapters.ARSTYLMTableAdapter asmta = new NRHPStubber.NrhpDatabaseTableAdapters.ARSTYLMTableAdapter();
             asmta.Fill(db.ARSTYLM);
 
-            MediaWikiApi wiki = new MediaWikiApi("NrhpBot", password);
+            NrhpDatabaseTableAdapters.PossibleArticlesTableAdapter pata = new NRHPStubber.NrhpDatabaseTableAdapters.PossibleArticlesTableAdapter();
+            pata.Fill(db.PossibleArticles);
+
             StringBuilder log = new StringBuilder();
 
             foreach (NrhpDatabase.PROPMAINRow pm in db.PROPMAIN.Rows)
@@ -54,14 +56,14 @@ namespace NRHPStubber
                 else
                     fullTitle = redirTitle + " (" + ti.ToTitleCase(ti.ToLower(pm.PrimaryCity)) + ", " + ti.ToTitleCase(ti.ToLower(pm.PrimaryState)) + ")";
 
-                Page p = wiki.GetPage(fullTitle);
+                Page p = Page.GetPage(fullTitle);
                 if (!p.IsMissing) throw new Exception("Page exists in current location");
 
-                string content = StubSingleArticle(db, pm.refnum);
+                StubSingleArticle(db, pm.refnum, p.NewRevision);
 
-                if (string.IsNullOrEmpty(content)) throw new Exception("cannot create an empty article.");
+                p.NewRevision.Comment = "New article stub created from NRIS database";
+                p.Save();
 
-                p.Revise(wiki, content, "New article stub created from NRIS database");
                 log.AppendFormat("*{0:yyyy-MM-dd HH:mm:ss} - [[{1}]] ([[Special:Whatlinkshere/{1}|links]], [{{{{fullurl:{1}|action=history}}}} history]) stub created.  ", DateTime.Now, p.Title);
 
                 pm.BeginEdit();
@@ -70,38 +72,34 @@ namespace NRHPStubber
 
                 pmta.Update(pm);
 
-                p = wiki.GetPage(redirTitle);
+                p = Page.GetPage(redirTitle);
                 if (p.IsMissing)
                 {
-                    p.Revise(wiki, string.Format("#REDIRECT [[{0}]]\n<!-- This redir was created by a bot, to report problems please contact [[User:Paultyng]] -->", fullTitle), "Redirct to geo specific title");
+                    p.NewRevision.RedirectTitle = fullTitle;
+                    p.NewRevision.Comment = "Redirct to geo specific title by bot, contact [[User:Paultyng]] for info";
+                    p.Save();
                     log.AppendFormat("[[{0}]] redirect added.", p.Title);
                 }
 
                 //write and reset log
-                WriteLog(wiki, log.ToString(), DateTime.Now);
+                WriteLog(log.ToString(), DateTime.Now);
                 log = new StringBuilder();
             }
 
             
         }
 
-        private static void WriteLog(MediaWikiApi wiki, string log, DateTime date)
+        private static void WriteLog(string log, DateTime date)
         {
-            Page logPage = wiki.GetPage(string.Format("User:NrhpBot/Logs/{0:yyyy}/{0:MMMM}/{0:dd}", date));
-            string logContents;
-            if (!logPage.IsMissing)
-                logContents = logPage.CurrentContent + "\n" + log;
-            else
-            {
-                logContents = log;
+            Page logPage = Page.GetPage(string.Format("User:NrhpBot/Logs/{0:yyyy}/{0:MMMM}/{0:dd}", date));
 
-                //TODO: edit User:NrhpBot/Logs to transclude new file
-            }
+            logPage.NewRevision.AppendContent("\n" + log);
+            logPage.NewRevision.Comment = "Adding logs for new run";
 
-            logPage.Revise(wiki, logContents, "Adding logs for new run");
+            logPage.Save();
         }
 
-        public static string StubSingleArticle(NrhpDatabase db, int refnum)
+        public static void StubSingleArticle(NrhpDatabase db, int refnum, PageRevision newRevision)
         {
             TextInfo ti = CultureInfo.CreateSpecificCulture("en").TextInfo;
 
@@ -189,50 +187,53 @@ namespace NRHPStubber
             sb.AppendFormat("\n}}}}\n'''{0}''' is a registered historic {1} {2}[[{3}, {4}|{3}]], [[{4}]], listed in the [[National Register of Historic Places|National Register]] on [[{5:MMMM} {5:%d}]], [[{5:yyyy}]].  ", name, ti.ToLower(r.RETYPEMRow.retype), (r.PrimaryVicinity ? "near " : "in "), r.PrimaryCity, ti.ToTitleCase(ti.ToLower(r.PrimaryState)), r.certdate);
             if (historicDistrict && !r.IsnumcbldgNull()) sb.AppendFormat("It contains {0} contributing buildings.  ", r.numcbldg);
 
+            newRevision.Sections.Add(sb.ToString()); //add overview
+            sb = new StringBuilder();
+
             NrhpDatabase.HSFUNCDRow[] historicFunctions = r.GetHSFUNCDRows();
 
             if (historicFunctions.Length > 0)
             {
-                sb.Append("\n== Historic uses ==\n");
-
                 foreach (NrhpDatabase.HSFUNCDRow historicFunction in historicFunctions)
                 {
                     sb.AppendFormat("*{0}\n", ti.ToTitleCase(ti.ToLower(historicFunction.FUNCMRow.func)));
                 }
+
+                newRevision.Sections.Add("Historic uses", 1, sb.ToString());
+                sb = new StringBuilder();
             }
 
             NrhpDatabase.PossibleArticlesRow[] possibleArticles = r.GetPossibleArticlesRows();
-            bool seeAlso = false;
-            
             foreach (NrhpDatabase.PossibleArticlesRow possibleArticle in possibleArticles)
             {
                 if (!possibleArticle.IsSeeAlsoNull())
                 {
-                    if (!seeAlso)
-                    {
-                        sb.Append("\n== See Also ==\n");
-                        seeAlso = true;
-                    }
-
-                    Page seeAlsoPage = MediaWikiApi.Anonymous.GetPage(possibleArticle.ArticleID);
+                    Page seeAlsoPage = Page.GetPage(possibleArticle.ArticleID);
 
                     sb.AppendFormat("* [[{0}]]\n", seeAlsoPage.FullTitle);
                 }
+
+                if(sb.Length > 0)
+                {
+                    newRevision.Sections.Add("See also", 1, sb.ToString());
+                    sb = new StringBuilder();
+                }
             }
 
-
-            sb.Append("\n== Notes ==\n{{reflist}}\n\n");
+            sb.Append("{{reflist}}\n\n");
 
             if(!historicDistrict)
                 sb.AppendFormat("{{{{{0}-{1}-NRHP-struct-stub}}}}\n", ti.ToTitleCase(ti.ToLower(r.PrimaryState)), ti.ToTitleCase(ti.ToLower(r.PrimaryCounty)));
             else
                 sb.AppendFormat("{{{{{0}-{1}-NRHP-dist-stub}}}}\n", ti.ToTitleCase(ti.ToLower(r.PrimaryState)), ti.ToTitleCase(ti.ToLower(r.PrimaryCounty)));
 
-            sb.AppendFormat("{{{{Registered Historic Places}}}}\n\n[[Category:Registered Historic Places in {0}]]\n", ti.ToTitleCase(ti.ToLower(r.PrimaryState)), ti.ToTitleCase(ti.ToLower(r.PrimaryCounty)));
+            sb.AppendFormat("{{{{Registered Historic Places}}}}", ti.ToTitleCase(ti.ToLower(r.PrimaryState)), ti.ToTitleCase(ti.ToLower(r.PrimaryCounty)));
 
-            if (historicDistrict) sb.Append("[[Category:Historic districts in the United States]]");
+            newRevision.Categories.Add(string.Format("Registered Historic Places in {0}", ti.ToTitleCase(ti.ToLower(r.PrimaryState))));
 
-            return sb.ToString();
+            if (historicDistrict) newRevision.Categories.Add("[[Category:Historic districts in the United States]]");
+
+            newRevision.Sections.Add("Notes", 1, sb.ToString());
         }
 
         private static void NrisCite(Dictionary<string, string> cites, StringBuilder sb)

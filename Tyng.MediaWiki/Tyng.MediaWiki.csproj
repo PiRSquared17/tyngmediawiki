@@ -43,11 +43,15 @@
     <Compile Include="..\Tyng-AssemblyInfo.cs">
       <Link>Properties\Tyng-AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Category.cs" />
     <Compile Include="Configuration\ApiSleepSettings.cs" />
     <Compile Include="Configuration\ApiSleepSettingsCollection.cs" />
+    <Compile Include="Configuration\ApiLoginSettings.cs" />
     <Compile Include="Configuration\Config.cs" />
-    <Compile Include="Configuration\Section.cs" />
+    <Compile Include="Configuration\ApiLoginSettingsCollection.cs" />
+    <Compile Include="Configuration\MediaWikiSection.cs" />
     <Compile Include="EditException.cs" />
+    <Compile Include="IPage.cs" />
     <Compile Include="LoginException.cs" />
     <Compile Include="MediaWikiApi.cs" />
     <Compile Include="MediaWikiException.cs" />

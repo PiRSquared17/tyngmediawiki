@@ -10,16 +10,31 @@ namespace Tyng.MediaWiki
         {
             get
             {
-                if (Section == null) return null;
                 return Section.Sleep;
             }
         }
 
-        private static Section Section
+        public static Configuration.ApiLoginSettingsCollection Logins
         {
             get
             {
-                return (Configuration.Section)ConfigurationManager.GetSection("mediaWiki");                
+                return Section.Logins;
+            }
+        }
+
+        public static string DefaultLoginName
+        {
+            get
+            {
+                return Section.DefaultLoginName;
+            }
+        }
+
+        private static MediaWikiSection Section
+        {
+            get
+            {
+                return (Configuration.MediaWikiSection)ConfigurationManager.GetSection("mediaWiki");                
             }
         }
 
@@ -27,7 +42,6 @@ namespace Tyng.MediaWiki
         {
             get
             {
-                if (Section == null) return null;
                 return Section.SiteName;
             }
         }
@@ -36,7 +50,6 @@ namespace Tyng.MediaWiki
         {
             get
             {
-                if (Section == null) return null;
                 return Section.Server;
             }
         }
@@ -45,7 +58,6 @@ namespace Tyng.MediaWiki
         {
             get
             {
-                if (Section == null) return null;
                 return Section.ScriptName;
             }
         }
@@ -54,7 +66,6 @@ namespace Tyng.MediaWiki
         {
             get
             {
-                if (Section == null) return null;
                 return Section.ScriptPath;
             }
         }
@@ -63,8 +74,23 @@ namespace Tyng.MediaWiki
         {
             get
             {
-                if (Section == null) return null;
                 return Section.ApiName;
+            }
+        }
+
+        public static string UserAgentFormat
+        {
+            get
+            {
+                return Section.UserAgentFormat;
+            }
+        }
+
+        public static int MaxRedirectFollow
+        {
+            get
+            {
+                return Section.MaxRedirectFollow;
             }
         }
     }

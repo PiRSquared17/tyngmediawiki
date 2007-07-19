@@ -10,6 +10,7 @@ using System.Text;
 using System.Windows.Forms;
 using Tyng.Google;
 using Tyng.MediaWiki;
+using Tyng.MediaWiki.Configuration;
 
 namespace NRHPStubber
 {
@@ -46,45 +47,26 @@ namespace NRHPStubber
         }
         #endregion
 
-        private void pROPMAINBindingNavigatorSaveItem_Click(object sender, EventArgs e)
-        {
-            this.Validate();
-            this.pROPMAINBindingSource.EndEdit();
-            this.pROPMAINTableAdapter.Update(this.nrhpDatabase.PROPMAIN);
-
-        }
-
         private void MainForm_Load(object sender, EventArgs e)
         {
-            // TODO: This line of code loads data into the 'nrhpDatabase.PROPMAIN' table. You can move, or remove it, as needed.
-            this.pROPMAINTableAdapter.FillByCountyToCreate(this.nrhpDatabase.PROPMAIN, tstbCounty.Text);
+            MediaWikiSection section = (MediaWikiSection)ConfigurationManager.GetSection("mediaWiki");
 
-            NrhpDatabaseTableAdapters.RETYPEMTableAdapter rtmta = new NRHPStubber.NrhpDatabaseTableAdapters.RETYPEMTableAdapter();
-            rtmta.Fill(this.nrhpDatabase.RETYPEM);
-
-            NrhpDatabaseTableAdapters.FUNCMTableAdapter fmta = new NRHPStubber.NrhpDatabaseTableAdapters.FUNCMTableAdapter();
-            fmta.Fill(this.nrhpDatabase.FUNCM);
-
-            NrhpDatabaseTableAdapters.HSFUNCDTableAdapter hsfdta = new NRHPStubber.NrhpDatabaseTableAdapters.HSFUNCDTableAdapter();
-            hsfdta.Fill(this.nrhpDatabase.HSFUNCD);
-
-            NrhpDatabaseTableAdapters.CSFUNCDTableAdapter csfdta = new NRHPStubber.NrhpDatabaseTableAdapters.CSFUNCDTableAdapter();
-            csfdta.Fill(this.nrhpDatabase.CSFUNCD);
-
-            NrhpDatabaseTableAdapters.ARCHTECDTableAdapter adta = new NRHPStubber.NrhpDatabaseTableAdapters.ARCHTECDTableAdapter();
-            adta.Fill(this.nrhpDatabase.ARCHTECD);
-
-            NrhpDatabaseTableAdapters.ARSTYLDTableAdapter asdta = new NRHPStubber.NrhpDatabaseTableAdapters.ARSTYLDTableAdapter();
-            asdta.Fill(this.nrhpDatabase.ARSTYLD);
-
-            NrhpDatabaseTableAdapters.ARSTYLMTableAdapter asmta = new NRHPStubber.NrhpDatabaseTableAdapters.ARSTYLMTableAdapter();
-            asmta.Fill(this.nrhpDatabase.ARSTYLM);
+            if (!section.Logins.ContainsKey("NrhpBot"))
+            {
+                string passwordText = null;
+                if (PasswordForm.Show(out passwordText) == DialogResult.OK)
+                {
+             
+                    section.Logins.Add(new ApiLoginSettings("NrhpBot", passwordText));
+                    section.DefaultLoginName = "NrhpBot";
+                }
+            }
+            
         }
 
         private void tsbPossibleArticles_Click(object sender, EventArgs e)
         {
             PossibleArticlesForm f = new PossibleArticlesForm();
-            f.CurrentRefNum = (int)((DataRowView)pROPMAINBindingSource.Current)["refnum"];
             f.ShowDialog();
         }
 
@@ -94,25 +76,9 @@ namespace NRHPStubber
             bwFindMatches.RunWorkerAsync();
         }
 
-        private void pROPMAINDataGridView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            NrhpDatabase.PROPMAINRow r = (NrhpDatabase.PROPMAINRow)((DataRowView)pROPMAINBindingSource.Current).Row;
-            NrhpDatabase db = (NrhpDatabase) r.Table.DataSet;
-
-            string article = Stubber.StubSingleArticle(db, r.refnum);
-
-            PageSection[] sections = PageSection.ParseSections(article);
-
-            Clipboard.SetText(article);
-        }
-
         private void tsbStubCounty_Click(object sender, EventArgs e)
         {
-            string passwordText = null;
-            if (PasswordForm.Show(out passwordText) == DialogResult.OK)
-            {
-                Stubber.Stub(passwordText, tstbCounty.Text);
-            }
+            
         }
 
         private void bwFindMatches_DoWork(object sender, DoWorkEventArgs e)

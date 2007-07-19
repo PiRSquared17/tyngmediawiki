@@ -2,20 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
 using System.Web;
+using Tyng.MediaWiki.Configuration;
 
 namespace Tyng.MediaWiki
 {
     
     public sealed class MediaWikiApi
     {
-        private const string HiddenInputRegex = "type=['\"]hidden['\"] value=['\"](?<value>[^'\"]*?)['\"] name=['\"]{0}['\"]";
-        private const string HiddenInputRegexAlt = "type=['\"]hidden['\"] name=['\"]{0}['\"] value=['\"](?<value>[^'\"]*?)['\"]";
-        private const string EditQuery = "title={0}&action=edit";
+        internal const string RedirectRegex = @"^\s*#REDIRECT \[\[(?<title>[^\]\|]?[^\]]*)\]\]";
+        internal const string CategoryRegex = @"[[Category:(?<title>[^\]\|]?[^\]]*)\]\]";
+        internal const string FormContentType = "application/x-www-form-urlencoded";
+        internal const string HiddenInputRegex = "type=['\"]hidden['\"] value=['\"](?<value>[^'\"]*?)['\"] name=['\"]{0}['\"]";
+        internal const string HiddenInputRegexAlt = "type=['\"]hidden['\"] name=['\"]{0}['\"] value=['\"](?<value>[^'\"]*?)['\"]";
+        internal const string EditQuery = "title={0}&action=edit";
 
         string _token;
         string _username;
@@ -29,14 +34,59 @@ namespace Tyng.MediaWiki
             _isAnonymous = true;
         }
 
-        public MediaWikiApi(string basePath, string user, string password)
+        private MediaWikiApi(string user, string password) 
         {
+            _isAnonymous = false;
             Login(user, password, null);
         }
 
-        public MediaWikiApi(string user, string password) : this(null, user, password) { }
+        public static string UserAgent
+        {
+            get
+            {
+                Assembly lib = Assembly.GetExecutingAssembly();
+                Assembly entry = Assembly.GetEntryAssembly();
+
+                string libName = lib.GetName().Name;
+                string entryName = entry.GetName().Name;
+
+                object[] title = lib.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+                if(title != null && title.Length > 0) libName = ((AssemblyTitleAttribute)title[0]).Title;
+
+                title = entry.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+                if(title != null && title.Length > 0) entryName = ((AssemblyTitleAttribute)title[0]).Title;
+
+                return string.Format(Config.UserAgentFormat, libName, lib.GetName().Version, entryName, entry.GetName().Version);
+            }
+        }
 
         private static MediaWikiApi _anonymous;
+        private static Dictionary<string, MediaWikiApi> _apiCache = new Dictionary<string,MediaWikiApi>();
+
+        //TODO: threading locks...
+        public static MediaWikiApi GetMediaWikiApi(string loginName)
+        {
+            if (loginName == null) return Anonymous;
+
+            if (_apiCache.ContainsKey(loginName))
+            {
+                return _apiCache[loginName];
+            }
+            else
+            {
+                ApiLoginSettings login = Config.Logins.GetLogin(loginName);
+                if (login == null) throw new System.Configuration.ConfigurationErrorsException("Login '" + loginName + "' not found in logins element.");
+                MediaWikiApi api = new MediaWikiApi(login.LoginName, login.Password);
+                _apiCache.Add(login.LoginName, api);
+                return api;                
+            }
+        }
+
+        public static MediaWikiApi GetDefault()
+        {
+            return GetMediaWikiApi(Config.DefaultLoginName);
+        }
+
         public static MediaWikiApi Anonymous
         {
             get
@@ -66,6 +116,18 @@ namespace Tyng.MediaWiki
             {
                 return _isAnonymous;
             }
+        }
+
+        private HttpWebRequest PrepareRequest(string method, string url)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.AllowAutoRedirect = false;
+            request.UserAgent = UserAgent;
+            request.Method = method;
+
+            if (method == "POST") request.ContentType = FormContentType;
+
+            return request;
         }
 
         private void Login(string user, string password, string domain)
@@ -129,10 +191,7 @@ namespace Tyng.MediaWiki
             string url = CombineUrlPath(Config.Server, Config.ScriptPath, Config.ScriptName + "?" + string.Format(EditQuery, Uri.EscapeDataString(title)));
 
             //TODO: move to API once its implemented there
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.AllowAutoRedirect = false;
-            request.UserAgent = "Tyng.MediaWikiApi Library";
-            request.Method = "GET";
+            HttpWebRequest request = PrepareRequest("GET", url);
 
             CookieCollection cookies = new CookieCollection();
             cookies.Add(new Cookie("enwikiUserID", _userId.ToString(), "/", "en.wikipedia.org"));
@@ -164,11 +223,7 @@ namespace Tyng.MediaWiki
                 startTime = GetHiddenInputValue("wpStarttime", html);
             }
 
-            request = (HttpWebRequest)WebRequest.Create(url);
-            request.AllowAutoRedirect = false;
-            request.UserAgent = "Tyng.MediaWikiApi Library";
-            request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
+            request = PrepareRequest("POST", url);
 
             cookies = new CookieCollection();
             cookies.Add(new Cookie("enwikiUserID", _userId.ToString(), "/", "en.wikipedia.org"));
@@ -220,58 +275,6 @@ namespace Tyng.MediaWiki
             return xml;
         }
 
-        public Page GetPage(string title)
-        {
-            return GetPage(new string[] { title })[0];
-        }
-
-        public Page GetPage(int id)
-        {
-            return GetPage(new int[] { id })[0];
-        }
-
-        public Page[] GetPage(params string[] titles)
-        {
-            string escapedTitles = string.Join("|", titles);
-            escapedTitles = Uri.EscapeDataString(escapedTitles);
-
-            XmlDocument xml = RequestApi("query", "prop=info|revisions", "titles=" + escapedTitles);
-
-            XmlNode pages = xml.SelectSingleNode("/api/query/pages");
-
-            List<Page> normalized = new List<Page>(titles.Length);
-
-            foreach (XmlNode page in pages.ChildNodes)
-            {
-                normalized.Add(new Page((XmlElement)page));
-            }
-
-            return normalized.ToArray();
-        }
-
-        public Page[] GetPage(params int[] pageIds)
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < pageIds.Length; i++)
-            {
-                if (i > 0) sb.Append("|");
-                sb.Append(pageIds[i].ToString());
-            }
-
-            XmlDocument xml = RequestApi("query", "prop=info|revisions", "pageids=" + sb.ToString());
-
-            XmlNode pages = xml.SelectSingleNode("/api/query/pages");
-
-            List<Page> normalized = new List<Page>(pageIds.Length);
-
-            foreach (XmlNode page in pages.ChildNodes)
-            {
-                normalized.Add(new Page((XmlElement)page));
-            }
-
-            return normalized.ToArray();
-        }
-
         internal XmlDocument RequestApi(string action, params string[] parameters)
         {
             return RequestApi(action, _postDataAlways, parameters);
@@ -298,21 +301,14 @@ namespace Tyng.MediaWiki
 
             if (!postData)  uri.Query = sb.ToString();
 
-            WebRequest request = WebRequest.Create(uri.Uri);
-
+            HttpWebRequest request = PrepareRequest(postData ? "POST" : "GET", uri.ToString());
+            
             if (postData)
             {
-                request.ContentType = "application/x-www-form-urlencoded";
-                request.Method = "POST";
-
                 using (StreamWriter sw = new StreamWriter(request.GetRequestStream()))
                 {
                     sw.Write(sb.ToString());
                 }
-            }
-            else
-            {
-                request.Method = "GET";
             }
 
             Sleep(action);

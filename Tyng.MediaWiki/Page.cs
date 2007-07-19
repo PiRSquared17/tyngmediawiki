@@ -5,30 +5,68 @@ using System.Xml;
 
 namespace Tyng.MediaWiki
 {
-    
-    public sealed class Page
+    [Serializable]
+    public sealed class Page : IPage
     {
-        bool _infoFetched = false;
         int? _id;
         string _title;
         MediaWikiNamespace _ns;
         DateTime _lastTouched;
         int _lastRevisionId;
-        int _size;
         int _counter;
-        bool _isRedirect;
-        Page _redirect;
-        bool _new;
-        string[] _categories;
+        bool _isNewlyCreated;
         PageRevision _lastRevision;
+        PageRevision _newRevision;
 
-        internal Page(XmlElement pageElement)
+        private Page()
         {
-            ParsePage(pageElement);
-            ParsePageInfo(pageElement);
-            ParseCategories(pageElement);
         }
 
+        #region Fetch / Factory
+
+        public static Page GetPage(string fullTitle)
+        {
+            return GetPage(MediaWikiApi.GetDefault(), fullTitle);
+        }
+
+        public static Page GetPage(int id)
+        {
+            return GetPage(MediaWikiApi.GetDefault(), id);
+        }
+
+        public static Page GetPage(string login, string fullTitle)
+        {
+            return GetPage(MediaWikiApi.GetMediaWikiApi(login), fullTitle);
+        }
+
+        public static Page GetPage(string login, int id)
+        {
+            return GetPage(MediaWikiApi.GetMediaWikiApi(login), id);
+        }
+
+        private static Page GetPage(MediaWikiApi api, string fullTitle)
+        {
+            Page p = new Page();
+            fullTitle = Uri.EscapeDataString(fullTitle);
+            XmlElement pageElement = (XmlElement)FetchPages(api, "titles=" + fullTitle)[0];
+            p.ParsePage(pageElement);
+            return p;
+        }
+
+        private static Page GetPage(MediaWikiApi api, int id)
+        {
+            Page p = new Page();
+            XmlElement pageElement = (XmlElement)FetchPages(api, "pageids=" + id)[0];
+            p.ParsePage(pageElement);
+            return p;
+        }
+
+        private static XmlNodeList FetchPages(MediaWikiApi api, string param)
+        {
+            XmlDocument xml = api.RequestApi("query", "prop=revisions|info", "rvprop=timestamp|user|comment|content", "rvlimit=1", "redirects", param);
+            return xml.SelectNodes("/api/query/pages/page");
+        }
+        
         private void ParsePage(XmlElement page)
         {
             _id = null;
@@ -43,94 +81,8 @@ namespace Tyng.MediaWiki
             if (nsAtt != null) _ns = (MediaWikiNamespace)Enum.ToObject(typeof(MediaWikiNamespace), int.Parse(nsAtt.Value));
 
             _title = NamespaceUtility.StripNamespace(_ns, page.Attributes["title"].Value);
-        }
-
-        public void Revise(string newContent, string editSummary)
-        {
-            Revise(newContent, editSummary, false);
-        }
-
-        public void Revise(string newContent, string editSummary, bool minorEdit)
-        {
-            Revise(MediaWikiApi.Anonymous, newContent, editSummary);
-        }
-
-        public void Revise(MediaWikiApi api, string newContent, string editSummary)
-        {
-            Revise(api, newContent, editSummary, false);
-        }
-
-        public void Revise(MediaWikiApi api, string newContent, string editSummary, bool minorEdit)
-        {
-            XmlDocument xml = api.EditPage(FullTitle, newContent, editSummary, minorEdit);
-
-            _id = null;
-            _categories = null;
-            _infoFetched = false;
-            _lastRevision = null;
-            _redirect = null;
-
-            XmlElement page = (XmlElement)xml.SelectSingleNode("/api/query/pages/page");
-
-            ParsePage(page);
-            ParsePageInfo(page);
-            CheckMissing();
-        }
-
-        #region Content
-        private void FetchContent(MediaWikiApi api)
-        {
-            if (_lastRevision != null) return;
-            CheckMissing();
-
-            _lastRevision = PageRevision.FetchLatestRevision(api, Id.Value);
-        }
-        #endregion
-
-        #region Categories
-
-        private void FetchCategories(MediaWikiApi api)
-        {
-            if (_categories != null) return;
-            CheckMissing();
-
-            XmlDocument xml = api.RequestApi("query", "prop=categories", "pageids=" + Id.ToString());
-            XmlNode page = xml.SelectSingleNode("/api/query/pages/page");
-            ParseCategories((XmlElement)page);
-        }
-
-
-        private void ParseCategories(XmlElement page)
-        {
-            _categories = null;
 
             if (!IsMissing)
-            {
-                XmlNode categories = page.SelectSingleNode("categories");
-
-                if (categories != null)
-                {
-                    List<string> foundCategories = new List<string>(categories.ChildNodes.Count);
-
-                    foreach (XmlNode category in categories.ChildNodes)
-                    {
-                        foundCategories.Add(NamespaceUtility.StripNamespace(MediaWikiNamespace.Category, category.Attributes["title"].Value));
-                    }
-
-                    _categories = foundCategories.ToArray();
-                }
-            }
-        }
-
-        #endregion
-
-        #region Info
-
-        private void ParsePageInfo(XmlElement page)
-        {
-            _infoFetched = false;
-
-            if (! IsMissing)
             {
                 XmlAttribute touched = page.Attributes["touched"];
                 if (touched != null)
@@ -138,46 +90,131 @@ namespace Tyng.MediaWiki
                     _lastTouched = DateTime.Parse(touched.Value);
                     _counter = int.Parse(page.Attributes["counter"].Value);
                     _lastRevisionId = int.Parse(page.Attributes["lastrevid"].Value);
-                    _size = int.Parse(page.Attributes["length"].Value);
-                    _new = (page.Attributes["new"] != null);
-                    _isRedirect = (page.Attributes["redirect"] != null);
-
-                    _infoFetched = true;
+                    _isNewlyCreated = (page.Attributes["new"] != null);
                 }
+
+                _lastRevision = new PageRevision((XmlElement) page.SelectSingleNode("revisions/rev"), (page.Attributes["redirect"] != null));
             }
         }
-
-        private void FetchInfo(MediaWikiApi api)
-        {
-            if (_infoFetched) return;
-            CheckMissing();
-
-            XmlDocument xml = api.RequestApi("query", "prop=info", "pageids=" + Id.ToString());
-            XmlNode page = xml.SelectSingleNode("/api/query/pages/page");
-            ParseCategories((XmlElement)page);
-        }
-
         #endregion
 
-        #region Redirect
-        private void ParseRedirect(XmlElement page)
+        public Page FollowRuntimeRedirects(string login)
         {
-            _redirect = null;
-
-            if (IsRedirect)
-            {
-                _redirect = new Page(page);
-            }
+            return FollowRuntimeRedirects(MediaWikiApi.GetMediaWikiApi(login));
         }
 
-        private void FetchRedirect(MediaWikiApi api)
+        public Page FollowRuntimeRedirects()
         {
-            if (!IsRedirect || _redirect != null) return;
-            CheckMissing();
+            return FollowRuntimeRedirects(MediaWikiApi.GetDefault());
+        }
 
-            XmlDocument xml = api.RequestApi("query", "redirects", "pageids=" + Id.ToString());
-            XmlNode page = xml.SelectSingleNode("/api/query/pages/page");
-            ParseRedirect((XmlElement)page);
+        private Page FollowRuntimeRedirects(MediaWikiApi api)
+        {
+            return FollowRuntimeRedirectsInternal(api, new Stack<string>());
+        }
+
+        private Page FollowRuntimeRedirectsInternal(MediaWikiApi api, Stack<string> redirects)
+        {
+            if (redirects.Contains(FullTitle)) throw new InvalidOperationException("Circular redirect detected.");
+
+            if (Config.MaxRedirectFollow == 0 || !LastRevision.IsRedirect) return this;
+
+            if (Config.MaxRedirectFollow == redirects.Count) throw new InvalidOperationException("Long redirect chain detected.");
+
+            redirects.Push(FullTitle);
+            Page redirectTo = Page.GetPage(api, LastRevision.RedirectTitle);
+            
+            return redirectTo.FollowRuntimeRedirectsInternal(api, redirects);
+        }
+
+        //#region Revise Overloads
+        //public void Revise(PageSectionCollection newSections, string editSummary)
+        //{
+        //    Revise(MediaWikiApi.Anonymous, newSections, editSummary, false);
+        //}
+
+        //public void Revise(PageSectionCollection newSections, string editSummary, bool minorEdit)
+        //{
+        //    Revise(MediaWikiApi.Anonymous, newSections, editSummary, minorEdit);
+        //}
+
+        //public void Revise(MediaWikiApi api, PageSectionCollection newSections, string editSummary)
+        //{
+        //    Revise(api, newSections, editSummary, false);
+        //}
+
+        //public void Revise(MediaWikiApi api, PageSectionCollection newSections, string editSummary, bool minorEdit)
+        //{
+        //    Revise(api, newSections.ConcatSections(), editSummary, minorEdit);
+        //}
+
+        //public void Revise(int sectionIndex, PageSection section, string editSummary)
+        //{
+        //    Revise(MediaWikiApi.Anonymous, sectionIndex, section, editSummary, false);
+        //}
+
+        //public void Revise(int sectionIndex, PageSection section, string editSummary, bool minorEdit)
+        //{
+        //    Revise(MediaWikiApi.Anonymous, sectionIndex, section, editSummary, minorEdit);
+        //}
+
+        //public void Revise(MediaWikiApi api, int sectionIndex, PageSection section, string editSummary)
+        //{
+        //    Revise(api, sectionIndex, section, editSummary, false);
+        //}
+
+        //public void Revise(MediaWikiApi api, int sectionIndex, PageSection section, string editSummary, bool minorEdit)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //public void Revise(string newContent, string editSummary)
+        //{
+        //    Revise(newContent, editSummary, false);
+        //}
+
+        //public void Revise(string newContent, string editSummary, bool minorEdit)
+        //{
+        //    Revise(MediaWikiApi.Anonymous, newContent, editSummary);
+        //}
+
+        //public void Revise(MediaWikiApi api, string newContent, string editSummary)
+        //{
+        //    Revise(api, newContent, editSummary, false);
+        //}
+
+        //public void Revise(MediaWikiApi api, string newContent, string editSummary, bool minorEdit)
+        //{
+        //    XmlDocument xml = api.EditPage(FullTitle, newContent, editSummary, minorEdit);
+
+        //    _id = null;
+        //    _categories = null;
+        //    _infoFetched = false;
+        //    _lastRevision = null;
+        //    _redirect = null;
+
+        //    XmlElement page = (XmlElement)xml.SelectSingleNode("/api/query/pages/page");
+
+        //    ParsePage(page);
+        //    ParsePageInfo(page);
+        //    CheckMissing();
+        //}
+        //#endregion
+
+        #region Save
+        public Page Save()
+        {
+            return Save(MediaWikiApi.GetDefault());
+        }
+
+        public Page Save(string login)
+        {
+            return Save(MediaWikiApi.GetMediaWikiApi(login));
+        }
+
+        private Page Save(MediaWikiApi api)
+        {
+            throw new NotImplementedException();
         }
         #endregion
 
@@ -193,36 +230,6 @@ namespace Tyng.MediaWiki
         public MediaWikiNamespace Namespace { get { return _ns; } }
         public int? Id { get { return _id; } }
 
-        public int? EndPointId
-        {
-            get
-            {
-                if (Redirect == null)
-                    return Id;
-                return Redirect.EndPointId;
-            }
-        }
-
-        public string EndPointCurrentContent
-        {
-            get
-            {
-                if (Redirect == null)
-                    return CurrentContent;
-                return Redirect.EndPointCurrentContent;
-            }
-        }
-
-        public string CurrentContent
-        {
-            get
-            {
-                FetchContent(MediaWikiApi.Anonymous);
-
-                return _lastRevision.Content;
-            }
-        }
-
         public string FullTitle
         {
             get
@@ -235,29 +242,8 @@ namespace Tyng.MediaWiki
         {
             get
             {
-                FetchInfo(MediaWikiApi.Anonymous);
-
+                CheckMissing();
                 return _counter;
-            }
-        }
-
-        public bool IsRedirect
-        {
-            get
-            {
-                FetchInfo(MediaWikiApi.Anonymous);
-
-                return _isRedirect;
-            }
-        }
-
-        public bool IsNew
-        {
-            get
-            {
-                FetchInfo(MediaWikiApi.Anonymous);
-
-                return _new;
             }
         }
 
@@ -265,8 +251,7 @@ namespace Tyng.MediaWiki
         {
             get
             {
-                FetchInfo(MediaWikiApi.Anonymous);
-
+                CheckMissing();
                 return _lastTouched;
             }
         }
@@ -275,41 +260,40 @@ namespace Tyng.MediaWiki
         {
             get
             {
-                FetchInfo(MediaWikiApi.Anonymous);
-
+                CheckMissing();
                 return _lastRevisionId;
             }
         }
 
-        public int Size
+        //TODO: make this read only...
+        public PageRevision LastRevision
         {
             get
             {
-                FetchInfo(MediaWikiApi.Anonymous);
-
-                return _size;
+                CheckMissing();
+                return _lastRevision;
             }
         }
 
-        public string[] Categories
+        public PageRevision NewRevision
         {
             get
             {
-                FetchCategories(MediaWikiApi.Anonymous);
+                if (_newRevision == null)
+                {
+                    _newRevision = LastRevision.Clone();
+                }
 
-                return _categories;
+                return _newRevision;
             }
         }
 
-        public Page Redirect
+        public bool IsNewlyCreated()
         {
-            get
-            {
-                FetchRedirect(MediaWikiApi.Anonymous);
-
-                return _redirect;
-            }
+            CheckMissing();
+            return _isNewlyCreated;
         }
+
         #endregion
     }
 }
