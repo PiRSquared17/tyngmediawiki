@@ -107,6 +107,8 @@ namespace NRHPStubber {
         
         private ARSTYLMDataTable tableARSTYLM;
         
+        private GEOCODEMDataTable tableGEOCODEM;
+        
         private System.Data.DataRelation relationFK_FEDAGD_PROPMAIN;
         
         private System.Data.DataRelation relationFK_PossibleArticles_PROPMAIN;
@@ -200,6 +202,12 @@ namespace NRHPStubber {
         private System.Data.DataRelation relationFK_ARSTYLD_ARSTYLM;
         
         private System.Data.DataRelation relationFK_PROPMAIN_ARSTYLD;
+        
+        private System.Data.DataRelation relationFK_GEOCODEM_STATEM;
+        
+        private System.Data.DataRelation relationFK_GEOCODEM_STATEM1;
+        
+        private System.Data.DataRelation relationFK_GEOCODEM_PROPMAIN;
         
         private System.Data.SchemaSerializationMode _schemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
         
@@ -352,6 +360,9 @@ namespace NRHPStubber {
                 }
                 if ((ds.Tables["ARSTYLM"] != null)) {
                     base.Tables.Add(new ARSTYLMDataTable(ds.Tables["ARSTYLM"]));
+                }
+                if ((ds.Tables["GEOCODEM"] != null)) {
+                    base.Tables.Add(new GEOCODEMDataTable(ds.Tables["GEOCODEM"]));
                 }
                 this.DataSetName = ds.DataSetName;
                 this.Prefix = ds.Prefix;
@@ -750,6 +761,15 @@ namespace NRHPStubber {
         }
         
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [System.ComponentModel.Browsable(false)]
+        [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Content)]
+        public GEOCODEMDataTable GEOCODEM {
+            get {
+                return this.tableGEOCODEM;
+            }
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [System.ComponentModel.BrowsableAttribute(true)]
         [System.ComponentModel.DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Visible)]
         public override System.Data.SchemaSerializationMode SchemaSerializationMode {
@@ -933,6 +953,9 @@ namespace NRHPStubber {
                 }
                 if ((ds.Tables["ARSTYLM"] != null)) {
                     base.Tables.Add(new ARSTYLMDataTable(ds.Tables["ARSTYLM"]));
+                }
+                if ((ds.Tables["GEOCODEM"] != null)) {
+                    base.Tables.Add(new GEOCODEMDataTable(ds.Tables["GEOCODEM"]));
                 }
                 this.DataSetName = ds.DataSetName;
                 this.Prefix = ds.Prefix;
@@ -1216,6 +1239,12 @@ namespace NRHPStubber {
                     this.tableARSTYLM.InitVars();
                 }
             }
+            this.tableGEOCODEM = ((GEOCODEMDataTable)(base.Tables["GEOCODEM"]));
+            if ((initTable == true)) {
+                if ((this.tableGEOCODEM != null)) {
+                    this.tableGEOCODEM.InitVars();
+                }
+            }
             this.relationFK_FEDAGD_PROPMAIN = this.Relations["FK_FEDAGD_PROPMAIN"];
             this.relationFK_PossibleArticles_PROPMAIN = this.Relations["FK_PossibleArticles_PROPMAIN"];
             this.relationFK_APCRITD_APCRITM = this.Relations["FK_APCRITD_APCRITM"];
@@ -1263,6 +1292,9 @@ namespace NRHPStubber {
             this.relationFK_PROPMAIN_PROPMAIN = this.Relations["FK_PROPMAIN_PROPMAIN"];
             this.relationFK_ARSTYLD_ARSTYLM = this.Relations["FK_ARSTYLD_ARSTYLM"];
             this.relationFK_PROPMAIN_ARSTYLD = this.Relations["FK_PROPMAIN_ARSTYLD"];
+            this.relationFK_GEOCODEM_STATEM = this.Relations["FK_GEOCODEM_STATEM"];
+            this.relationFK_GEOCODEM_STATEM1 = this.Relations["FK_GEOCODEM_STATEM1"];
+            this.relationFK_GEOCODEM_PROPMAIN = this.Relations["FK_GEOCODEM_PROPMAIN"];
         }
         
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1356,6 +1388,8 @@ namespace NRHPStubber {
             base.Tables.Add(this.tableARSTYLD);
             this.tableARSTYLM = new ARSTYLMDataTable();
             base.Tables.Add(this.tableARSTYLM);
+            this.tableGEOCODEM = new GEOCODEMDataTable();
+            base.Tables.Add(this.tableGEOCODEM);
             System.Data.ForeignKeyConstraint fkc;
             fkc = new System.Data.ForeignKeyConstraint("FK_FEDAGD_PROPMAIN", new System.Data.DataColumn[] {
                         this.tablePROPMAIN.refnumColumn}, new System.Data.DataColumn[] {
@@ -1553,6 +1587,18 @@ namespace NRHPStubber {
                         this.tablePROPMAIN.refnumColumn}, new System.Data.DataColumn[] {
                         this.tableARSTYLD.refnumColumn}, false);
             this.Relations.Add(this.relationFK_PROPMAIN_ARSTYLD);
+            this.relationFK_GEOCODEM_STATEM = new System.Data.DataRelation("FK_GEOCODEM_STATEM", new System.Data.DataColumn[] {
+                        this.tableSTATEM.statecdColumn}, new System.Data.DataColumn[] {
+                        this.tableGEOCODEM.gdtstatecdColumn}, false);
+            this.Relations.Add(this.relationFK_GEOCODEM_STATEM);
+            this.relationFK_GEOCODEM_STATEM1 = new System.Data.DataRelation("FK_GEOCODEM_STATEM1", new System.Data.DataColumn[] {
+                        this.tableSTATEM.statecdColumn}, new System.Data.DataColumn[] {
+                        this.tableGEOCODEM.statecdColumn}, false);
+            this.Relations.Add(this.relationFK_GEOCODEM_STATEM1);
+            this.relationFK_GEOCODEM_PROPMAIN = new System.Data.DataRelation("FK_GEOCODEM_PROPMAIN", new System.Data.DataColumn[] {
+                        this.tableGEOCODEM.refnumColumn}, new System.Data.DataColumn[] {
+                        this.tablePROPMAIN.refnumColumn}, false);
+            this.Relations.Add(this.relationFK_GEOCODEM_PROPMAIN);
         }
         
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1766,6 +1812,11 @@ namespace NRHPStubber {
         }
         
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        private bool ShouldSerializeGEOCODEM() {
+            return false;
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
         private void SchemaChanged(object sender, System.ComponentModel.CollectionChangeEventArgs e) {
             if ((e.Action == System.ComponentModel.CollectionChangeAction.Remove)) {
                 this.InitVars();
@@ -1868,6 +1919,8 @@ namespace NRHPStubber {
         public delegate void ARSTYLDRowChangeEventHandler(object sender, ARSTYLDRowChangeEvent e);
         
         public delegate void ARSTYLMRowChangeEventHandler(object sender, ARSTYLMRowChangeEvent e);
+        
+        public delegate void GEOCODEMRowChangeEventHandler(object sender, GEOCODEMRowChangeEvent e);
         
         [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "2.0.0.0")]
         [System.Serializable()]
@@ -10164,7 +10217,7 @@ namespace NRHPStubber {
             
             [System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public PROPMAINRow AddPROPMAINRow(
-                        int refnum, 
+                        GEOCODEMRow parentGEOCODEMRowByFK_GEOCODEM_PROPMAIN, 
                         string resname, 
                         string address, 
                         bool restrict, 
@@ -10192,7 +10245,7 @@ namespace NRHPStubber {
                         bool PrimaryVicinity) {
                 PROPMAINRow rowPROPMAINRow = ((PROPMAINRow)(this.NewRow()));
                 rowPROPMAINRow.ItemArray = new object[] {
-                        refnum,
+                        parentGEOCODEMRowByFK_GEOCODEM_PROPMAIN[0],
                         resname,
                         address,
                         restrict,
@@ -11632,6 +11685,436 @@ namespace NRHPStubber {
         }
         
         [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "2.0.0.0")]
+        [System.Serializable()]
+        [System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
+        public partial class GEOCODEMDataTable : System.Data.DataTable, System.Collections.IEnumerable {
+            
+            private System.Data.DataColumn columnrefnum;
+            
+            private System.Data.DataColumn columnstatecd;
+            
+            private System.Data.DataColumn columncounty;
+            
+            private System.Data.DataColumn columncity;
+            
+            private System.Data.DataColumn columnzip;
+            
+            private System.Data.DataColumn columnname;
+            
+            private System.Data.DataColumn columnaddress;
+            
+            private System.Data.DataColumn columngdtplus4;
+            
+            private System.Data.DataColumn columngdtsad;
+            
+            private System.Data.DataColumn columngdtcity;
+            
+            private System.Data.DataColumn columngdtstatecd;
+            
+            private System.Data.DataColumn columngdtpcode;
+            
+            private System.Data.DataColumn columngdtlat;
+            
+            private System.Data.DataColumn columngdtlong;
+            
+            private System.Data.DataColumn columngdtxin;
+            
+            private System.Data.DataColumn columngdtstat;
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public GEOCODEMDataTable() {
+                this.TableName = "GEOCODEM";
+                this.BeginInit();
+                this.InitClass();
+                this.EndInit();
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            internal GEOCODEMDataTable(System.Data.DataTable table) {
+                this.TableName = table.TableName;
+                if ((table.CaseSensitive != table.DataSet.CaseSensitive)) {
+                    this.CaseSensitive = table.CaseSensitive;
+                }
+                if ((table.Locale.ToString() != table.DataSet.Locale.ToString())) {
+                    this.Locale = table.Locale;
+                }
+                if ((table.Namespace != table.DataSet.Namespace)) {
+                    this.Namespace = table.Namespace;
+                }
+                this.Prefix = table.Prefix;
+                this.MinimumCapacity = table.MinimumCapacity;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            protected GEOCODEMDataTable(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : 
+                    base(info, context) {
+                this.InitVars();
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn refnumColumn {
+                get {
+                    return this.columnrefnum;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn statecdColumn {
+                get {
+                    return this.columnstatecd;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn countyColumn {
+                get {
+                    return this.columncounty;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn cityColumn {
+                get {
+                    return this.columncity;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn zipColumn {
+                get {
+                    return this.columnzip;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn nameColumn {
+                get {
+                    return this.columnname;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn addressColumn {
+                get {
+                    return this.columnaddress;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn gdtplus4Column {
+                get {
+                    return this.columngdtplus4;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn gdtsadColumn {
+                get {
+                    return this.columngdtsad;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn gdtcityColumn {
+                get {
+                    return this.columngdtcity;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn gdtstatecdColumn {
+                get {
+                    return this.columngdtstatecd;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn gdtpcodeColumn {
+                get {
+                    return this.columngdtpcode;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn gdtlatColumn {
+                get {
+                    return this.columngdtlat;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn gdtlongColumn {
+                get {
+                    return this.columngdtlong;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn gdtxinColumn {
+                get {
+                    return this.columngdtxin;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataColumn gdtstatColumn {
+                get {
+                    return this.columngdtstat;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [System.ComponentModel.Browsable(false)]
+            public int Count {
+                get {
+                    return this.Rows.Count;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public GEOCODEMRow this[int index] {
+                get {
+                    return ((GEOCODEMRow)(this.Rows[index]));
+                }
+            }
+            
+            public event GEOCODEMRowChangeEventHandler GEOCODEMRowChanging;
+            
+            public event GEOCODEMRowChangeEventHandler GEOCODEMRowChanged;
+            
+            public event GEOCODEMRowChangeEventHandler GEOCODEMRowDeleting;
+            
+            public event GEOCODEMRowChangeEventHandler GEOCODEMRowDeleted;
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void AddGEOCODEMRow(GEOCODEMRow row) {
+                this.Rows.Add(row);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public GEOCODEMRow AddGEOCODEMRow(
+                        int refnum, 
+                        STATEMRow parentSTATEMRowByFK_GEOCODEM_STATEM1, 
+                        string county, 
+                        string city, 
+                        string zip, 
+                        string name, 
+                        string address, 
+                        string gdtplus4, 
+                        string gdtsad, 
+                        string gdtcity, 
+                        STATEMRow parentSTATEMRowByFK_GEOCODEM_STATEM, 
+                        string gdtpcode, 
+                        decimal gdtlat, 
+                        decimal gdtlong, 
+                        string gdtxin, 
+                        string gdtstat) {
+                GEOCODEMRow rowGEOCODEMRow = ((GEOCODEMRow)(this.NewRow()));
+                rowGEOCODEMRow.ItemArray = new object[] {
+                        refnum,
+                        parentSTATEMRowByFK_GEOCODEM_STATEM1[0],
+                        county,
+                        city,
+                        zip,
+                        name,
+                        address,
+                        gdtplus4,
+                        gdtsad,
+                        gdtcity,
+                        parentSTATEMRowByFK_GEOCODEM_STATEM[0],
+                        gdtpcode,
+                        gdtlat,
+                        gdtlong,
+                        gdtxin,
+                        gdtstat};
+                this.Rows.Add(rowGEOCODEMRow);
+                return rowGEOCODEMRow;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public GEOCODEMRow FindByrefnum(int refnum) {
+                return ((GEOCODEMRow)(this.Rows.Find(new object[] {
+                            refnum})));
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public virtual System.Collections.IEnumerator GetEnumerator() {
+                return this.Rows.GetEnumerator();
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public override System.Data.DataTable Clone() {
+                GEOCODEMDataTable cln = ((GEOCODEMDataTable)(base.Clone()));
+                cln.InitVars();
+                return cln;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            protected override System.Data.DataTable CreateInstance() {
+                return new GEOCODEMDataTable();
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            internal void InitVars() {
+                this.columnrefnum = base.Columns["refnum"];
+                this.columnstatecd = base.Columns["statecd"];
+                this.columncounty = base.Columns["county"];
+                this.columncity = base.Columns["city"];
+                this.columnzip = base.Columns["zip"];
+                this.columnname = base.Columns["name"];
+                this.columnaddress = base.Columns["address"];
+                this.columngdtplus4 = base.Columns["gdtplus4"];
+                this.columngdtsad = base.Columns["gdtsad"];
+                this.columngdtcity = base.Columns["gdtcity"];
+                this.columngdtstatecd = base.Columns["gdtstatecd"];
+                this.columngdtpcode = base.Columns["gdtpcode"];
+                this.columngdtlat = base.Columns["gdtlat"];
+                this.columngdtlong = base.Columns["gdtlong"];
+                this.columngdtxin = base.Columns["gdtxin"];
+                this.columngdtstat = base.Columns["gdtstat"];
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            private void InitClass() {
+                this.columnrefnum = new System.Data.DataColumn("refnum", typeof(int), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columnrefnum);
+                this.columnstatecd = new System.Data.DataColumn("statecd", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columnstatecd);
+                this.columncounty = new System.Data.DataColumn("county", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columncounty);
+                this.columncity = new System.Data.DataColumn("city", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columncity);
+                this.columnzip = new System.Data.DataColumn("zip", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columnzip);
+                this.columnname = new System.Data.DataColumn("name", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columnname);
+                this.columnaddress = new System.Data.DataColumn("address", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columnaddress);
+                this.columngdtplus4 = new System.Data.DataColumn("gdtplus4", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columngdtplus4);
+                this.columngdtsad = new System.Data.DataColumn("gdtsad", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columngdtsad);
+                this.columngdtcity = new System.Data.DataColumn("gdtcity", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columngdtcity);
+                this.columngdtstatecd = new System.Data.DataColumn("gdtstatecd", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columngdtstatecd);
+                this.columngdtpcode = new System.Data.DataColumn("gdtpcode", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columngdtpcode);
+                this.columngdtlat = new System.Data.DataColumn("gdtlat", typeof(decimal), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columngdtlat);
+                this.columngdtlong = new System.Data.DataColumn("gdtlong", typeof(decimal), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columngdtlong);
+                this.columngdtxin = new System.Data.DataColumn("gdtxin", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columngdtxin);
+                this.columngdtstat = new System.Data.DataColumn("gdtstat", typeof(string), null, System.Data.MappingType.Element);
+                base.Columns.Add(this.columngdtstat);
+                this.Constraints.Add(new System.Data.UniqueConstraint("Constraint1", new System.Data.DataColumn[] {
+                                this.columnrefnum}, true));
+                this.columnrefnum.AllowDBNull = false;
+                this.columnrefnum.Unique = true;
+                this.columnstatecd.MaxLength = 2;
+                this.columncounty.AllowDBNull = false;
+                this.columncounty.MaxLength = 24;
+                this.columncity.AllowDBNull = false;
+                this.columncity.MaxLength = 36;
+                this.columnzip.MaxLength = 5;
+                this.columnname.AllowDBNull = false;
+                this.columnname.MaxLength = 72;
+                this.columnaddress.AllowDBNull = false;
+                this.columnaddress.MaxLength = 72;
+                this.columngdtplus4.MaxLength = 4;
+                this.columngdtsad.MaxLength = 72;
+                this.columngdtcity.MaxLength = 32;
+                this.columngdtstatecd.MaxLength = 2;
+                this.columngdtpcode.MaxLength = 5;
+                this.columngdtxin.MaxLength = 1;
+                this.columngdtstat.AllowDBNull = false;
+                this.columngdtstat.MaxLength = 2;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public GEOCODEMRow NewGEOCODEMRow() {
+                return ((GEOCODEMRow)(this.NewRow()));
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            protected override System.Data.DataRow NewRowFromBuilder(System.Data.DataRowBuilder builder) {
+                return new GEOCODEMRow(builder);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            protected override System.Type GetRowType() {
+                return typeof(GEOCODEMRow);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            protected override void OnRowChanged(System.Data.DataRowChangeEventArgs e) {
+                base.OnRowChanged(e);
+                if ((this.GEOCODEMRowChanged != null)) {
+                    this.GEOCODEMRowChanged(this, new GEOCODEMRowChangeEvent(((GEOCODEMRow)(e.Row)), e.Action));
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            protected override void OnRowChanging(System.Data.DataRowChangeEventArgs e) {
+                base.OnRowChanging(e);
+                if ((this.GEOCODEMRowChanging != null)) {
+                    this.GEOCODEMRowChanging(this, new GEOCODEMRowChangeEvent(((GEOCODEMRow)(e.Row)), e.Action));
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            protected override void OnRowDeleted(System.Data.DataRowChangeEventArgs e) {
+                base.OnRowDeleted(e);
+                if ((this.GEOCODEMRowDeleted != null)) {
+                    this.GEOCODEMRowDeleted(this, new GEOCODEMRowChangeEvent(((GEOCODEMRow)(e.Row)), e.Action));
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            protected override void OnRowDeleting(System.Data.DataRowChangeEventArgs e) {
+                base.OnRowDeleting(e);
+                if ((this.GEOCODEMRowDeleting != null)) {
+                    this.GEOCODEMRowDeleting(this, new GEOCODEMRowChangeEvent(((GEOCODEMRow)(e.Row)), e.Action));
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void RemoveGEOCODEMRow(GEOCODEMRow row) {
+                this.Rows.Remove(row);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public static System.Xml.Schema.XmlSchemaComplexType GetTypedTableSchema(System.Xml.Schema.XmlSchemaSet xs) {
+                System.Xml.Schema.XmlSchemaComplexType type = new System.Xml.Schema.XmlSchemaComplexType();
+                System.Xml.Schema.XmlSchemaSequence sequence = new System.Xml.Schema.XmlSchemaSequence();
+                NrhpDatabase ds = new NrhpDatabase();
+                xs.Add(ds.GetSchemaSerializable());
+                System.Xml.Schema.XmlSchemaAny any1 = new System.Xml.Schema.XmlSchemaAny();
+                any1.Namespace = "http://www.w3.org/2001/XMLSchema";
+                any1.MinOccurs = new decimal(0);
+                any1.MaxOccurs = decimal.MaxValue;
+                any1.ProcessContents = System.Xml.Schema.XmlSchemaContentProcessing.Lax;
+                sequence.Items.Add(any1);
+                System.Xml.Schema.XmlSchemaAny any2 = new System.Xml.Schema.XmlSchemaAny();
+                any2.Namespace = "urn:schemas-microsoft-com:xml-diffgram-v1";
+                any2.MinOccurs = new decimal(1);
+                any2.ProcessContents = System.Xml.Schema.XmlSchemaContentProcessing.Lax;
+                sequence.Items.Add(any2);
+                System.Xml.Schema.XmlSchemaAttribute attribute1 = new System.Xml.Schema.XmlSchemaAttribute();
+                attribute1.Name = "namespace";
+                attribute1.FixedValue = ds.Namespace;
+                type.Attributes.Add(attribute1);
+                System.Xml.Schema.XmlSchemaAttribute attribute2 = new System.Xml.Schema.XmlSchemaAttribute();
+                attribute2.Name = "tableTypeName";
+                attribute2.FixedValue = "GEOCODEMDataTable";
+                type.Attributes.Add(attribute2);
+                type.Particle = sequence;
+                return type;
+            }
+        }
+        
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "2.0.0.0")]
         public partial class APCRITDRow : System.Data.DataRow {
             
             private APCRITDDataTable tableAPCRITD;
@@ -11722,6 +12205,16 @@ namespace NRHPStubber {
             [System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public OSTATEDRow[] GetOSTATEDRows() {
                 return ((OSTATEDRow[])(base.GetChildRows(this.Table.ChildRelations["FK_OSTATED_STATEM"])));
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public GEOCODEMRow[] GetGEOCODEMRowsByFK_GEOCODEM_STATEM() {
+                return ((GEOCODEMRow[])(base.GetChildRows(this.Table.ChildRelations["FK_GEOCODEM_STATEM"])));
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public GEOCODEMRow[] GetGEOCODEMRowsByFK_GEOCODEM_STATEM1() {
+                return ((GEOCODEMRow[])(base.GetChildRows(this.Table.ChildRelations["FK_GEOCODEM_STATEM1"])));
             }
         }
         
@@ -13855,6 +14348,16 @@ namespace NRHPStubber {
             }
             
             [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public GEOCODEMRow GEOCODEMRow {
+                get {
+                    return ((GEOCODEMRow)(this.GetParentRow(this.Table.ParentRelations["FK_GEOCODEM_PROPMAIN"])));
+                }
+                set {
+                    this.SetParentRow(value, this.Table.ParentRelations["FK_GEOCODEM_PROPMAIN"]);
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public bool IsaddressNull() {
                 return this.IsNull(this.tablePROPMAIN.addressColumn);
             }
@@ -14547,6 +15050,353 @@ namespace NRHPStubber {
             [System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public ARSTYLDRow[] GetARSTYLDRows() {
                 return ((ARSTYLDRow[])(base.GetChildRows(this.Table.ChildRelations["FK_ARSTYLD_ARSTYLM"])));
+            }
+        }
+        
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "2.0.0.0")]
+        public partial class GEOCODEMRow : System.Data.DataRow {
+            
+            private GEOCODEMDataTable tableGEOCODEM;
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            internal GEOCODEMRow(System.Data.DataRowBuilder rb) : 
+                    base(rb) {
+                this.tableGEOCODEM = ((GEOCODEMDataTable)(this.Table));
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public int refnum {
+                get {
+                    return ((int)(this[this.tableGEOCODEM.refnumColumn]));
+                }
+                set {
+                    this[this.tableGEOCODEM.refnumColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string statecd {
+                get {
+                    try {
+                        return ((string)(this[this.tableGEOCODEM.statecdColumn]));
+                    }
+                    catch (System.InvalidCastException e) {
+                        throw new System.Data.StrongTypingException("The value for column \'statecd\' in table \'GEOCODEM\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableGEOCODEM.statecdColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string county {
+                get {
+                    return ((string)(this[this.tableGEOCODEM.countyColumn]));
+                }
+                set {
+                    this[this.tableGEOCODEM.countyColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string city {
+                get {
+                    return ((string)(this[this.tableGEOCODEM.cityColumn]));
+                }
+                set {
+                    this[this.tableGEOCODEM.cityColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string zip {
+                get {
+                    try {
+                        return ((string)(this[this.tableGEOCODEM.zipColumn]));
+                    }
+                    catch (System.InvalidCastException e) {
+                        throw new System.Data.StrongTypingException("The value for column \'zip\' in table \'GEOCODEM\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableGEOCODEM.zipColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string name {
+                get {
+                    return ((string)(this[this.tableGEOCODEM.nameColumn]));
+                }
+                set {
+                    this[this.tableGEOCODEM.nameColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string address {
+                get {
+                    return ((string)(this[this.tableGEOCODEM.addressColumn]));
+                }
+                set {
+                    this[this.tableGEOCODEM.addressColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string gdtplus4 {
+                get {
+                    try {
+                        return ((string)(this[this.tableGEOCODEM.gdtplus4Column]));
+                    }
+                    catch (System.InvalidCastException e) {
+                        throw new System.Data.StrongTypingException("The value for column \'gdtplus4\' in table \'GEOCODEM\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableGEOCODEM.gdtplus4Column] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string gdtsad {
+                get {
+                    try {
+                        return ((string)(this[this.tableGEOCODEM.gdtsadColumn]));
+                    }
+                    catch (System.InvalidCastException e) {
+                        throw new System.Data.StrongTypingException("The value for column \'gdtsad\' in table \'GEOCODEM\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableGEOCODEM.gdtsadColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string gdtcity {
+                get {
+                    try {
+                        return ((string)(this[this.tableGEOCODEM.gdtcityColumn]));
+                    }
+                    catch (System.InvalidCastException e) {
+                        throw new System.Data.StrongTypingException("The value for column \'gdtcity\' in table \'GEOCODEM\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableGEOCODEM.gdtcityColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string gdtstatecd {
+                get {
+                    try {
+                        return ((string)(this[this.tableGEOCODEM.gdtstatecdColumn]));
+                    }
+                    catch (System.InvalidCastException e) {
+                        throw new System.Data.StrongTypingException("The value for column \'gdtstatecd\' in table \'GEOCODEM\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableGEOCODEM.gdtstatecdColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string gdtpcode {
+                get {
+                    try {
+                        return ((string)(this[this.tableGEOCODEM.gdtpcodeColumn]));
+                    }
+                    catch (System.InvalidCastException e) {
+                        throw new System.Data.StrongTypingException("The value for column \'gdtpcode\' in table \'GEOCODEM\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableGEOCODEM.gdtpcodeColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public decimal gdtlat {
+                get {
+                    try {
+                        return ((decimal)(this[this.tableGEOCODEM.gdtlatColumn]));
+                    }
+                    catch (System.InvalidCastException e) {
+                        throw new System.Data.StrongTypingException("The value for column \'gdtlat\' in table \'GEOCODEM\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableGEOCODEM.gdtlatColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public decimal gdtlong {
+                get {
+                    try {
+                        return ((decimal)(this[this.tableGEOCODEM.gdtlongColumn]));
+                    }
+                    catch (System.InvalidCastException e) {
+                        throw new System.Data.StrongTypingException("The value for column \'gdtlong\' in table \'GEOCODEM\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableGEOCODEM.gdtlongColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string gdtxin {
+                get {
+                    try {
+                        return ((string)(this[this.tableGEOCODEM.gdtxinColumn]));
+                    }
+                    catch (System.InvalidCastException e) {
+                        throw new System.Data.StrongTypingException("The value for column \'gdtxin\' in table \'GEOCODEM\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableGEOCODEM.gdtxinColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public string gdtstat {
+                get {
+                    return ((string)(this[this.tableGEOCODEM.gdtstatColumn]));
+                }
+                set {
+                    this[this.tableGEOCODEM.gdtstatColumn] = value;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public STATEMRow STATEMRowByFK_GEOCODEM_STATEM {
+                get {
+                    return ((STATEMRow)(this.GetParentRow(this.Table.ParentRelations["FK_GEOCODEM_STATEM"])));
+                }
+                set {
+                    this.SetParentRow(value, this.Table.ParentRelations["FK_GEOCODEM_STATEM"]);
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public STATEMRow STATEMRowByFK_GEOCODEM_STATEM1 {
+                get {
+                    return ((STATEMRow)(this.GetParentRow(this.Table.ParentRelations["FK_GEOCODEM_STATEM1"])));
+                }
+                set {
+                    this.SetParentRow(value, this.Table.ParentRelations["FK_GEOCODEM_STATEM1"]);
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsstatecdNull() {
+                return this.IsNull(this.tableGEOCODEM.statecdColumn);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetstatecdNull() {
+                this[this.tableGEOCODEM.statecdColumn] = System.Convert.DBNull;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IszipNull() {
+                return this.IsNull(this.tableGEOCODEM.zipColumn);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetzipNull() {
+                this[this.tableGEOCODEM.zipColumn] = System.Convert.DBNull;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool Isgdtplus4Null() {
+                return this.IsNull(this.tableGEOCODEM.gdtplus4Column);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void Setgdtplus4Null() {
+                this[this.tableGEOCODEM.gdtplus4Column] = System.Convert.DBNull;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsgdtsadNull() {
+                return this.IsNull(this.tableGEOCODEM.gdtsadColumn);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetgdtsadNull() {
+                this[this.tableGEOCODEM.gdtsadColumn] = System.Convert.DBNull;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsgdtcityNull() {
+                return this.IsNull(this.tableGEOCODEM.gdtcityColumn);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetgdtcityNull() {
+                this[this.tableGEOCODEM.gdtcityColumn] = System.Convert.DBNull;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsgdtstatecdNull() {
+                return this.IsNull(this.tableGEOCODEM.gdtstatecdColumn);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetgdtstatecdNull() {
+                this[this.tableGEOCODEM.gdtstatecdColumn] = System.Convert.DBNull;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsgdtpcodeNull() {
+                return this.IsNull(this.tableGEOCODEM.gdtpcodeColumn);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetgdtpcodeNull() {
+                this[this.tableGEOCODEM.gdtpcodeColumn] = System.Convert.DBNull;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsgdtlatNull() {
+                return this.IsNull(this.tableGEOCODEM.gdtlatColumn);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetgdtlatNull() {
+                this[this.tableGEOCODEM.gdtlatColumn] = System.Convert.DBNull;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsgdtlongNull() {
+                return this.IsNull(this.tableGEOCODEM.gdtlongColumn);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetgdtlongNull() {
+                this[this.tableGEOCODEM.gdtlongColumn] = System.Convert.DBNull;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public bool IsgdtxinNull() {
+                return this.IsNull(this.tableGEOCODEM.gdtxinColumn);
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public void SetgdtxinNull() {
+                this[this.tableGEOCODEM.gdtxinColumn] = System.Convert.DBNull;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public PROPMAINRow[] GetPROPMAINRows() {
+                return ((PROPMAINRow[])(base.GetChildRows(this.Table.ChildRelations["FK_GEOCODEM_PROPMAIN"])));
             }
         }
         
@@ -15713,6 +16563,34 @@ namespace NRHPStubber {
             
             [System.Diagnostics.DebuggerNonUserCodeAttribute()]
             public ARSTYLMRow Row {
+                get {
+                    return this.eventRow;
+                }
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public System.Data.DataRowAction Action {
+                get {
+                    return this.eventAction;
+                }
+            }
+        }
+        
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "2.0.0.0")]
+        public class GEOCODEMRowChangeEvent : System.EventArgs {
+            
+            private GEOCODEMRow eventRow;
+            
+            private System.Data.DataRowAction eventAction;
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public GEOCODEMRowChangeEvent(GEOCODEMRow row, System.Data.DataRowAction action) {
+                this.eventRow = row;
+                this.eventAction = action;
+            }
+            
+            [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            public GEOCODEMRow Row {
                 get {
                     return this.eventRow;
                 }
@@ -27643,6 +28521,818 @@ SELECT refnum, circa, sigyear FROM SIGYEARD WHERE (refnum = @refnum) AND (sigyea
             }
             else {
                 this.Adapter.UpdateCommand.Parameters[3].Value = ((string)(Original_arstyl));
+            }
+            System.Data.ConnectionState previousConnectionState = this.Adapter.UpdateCommand.Connection.State;
+            if (((this.Adapter.UpdateCommand.Connection.State & System.Data.ConnectionState.Open) 
+                        != System.Data.ConnectionState.Open)) {
+                this.Adapter.UpdateCommand.Connection.Open();
+            }
+            try {
+                int returnValue = this.Adapter.UpdateCommand.ExecuteNonQuery();
+                return returnValue;
+            }
+            finally {
+                if ((previousConnectionState == System.Data.ConnectionState.Closed)) {
+                    this.Adapter.UpdateCommand.Connection.Close();
+                }
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "2.0.0.0")]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.ComponentModel.ToolboxItem(true)]
+    [System.ComponentModel.DataObjectAttribute(true)]
+    [System.ComponentModel.DesignerAttribute("Microsoft.VSDesigner.DataSource.Design.TableAdapterDesigner, Microsoft.VSDesigner" +
+        ", Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+    [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+    public partial class GEOCODEMTableAdapter : System.ComponentModel.Component {
+        
+        private System.Data.SqlClient.SqlDataAdapter _adapter;
+        
+        private System.Data.SqlClient.SqlConnection _connection;
+        
+        private System.Data.SqlClient.SqlCommand[] _commandCollection;
+        
+        private bool _clearBeforeFill;
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public GEOCODEMTableAdapter() {
+            this.ClearBeforeFill = true;
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        private System.Data.SqlClient.SqlDataAdapter Adapter {
+            get {
+                if ((this._adapter == null)) {
+                    this.InitAdapter();
+                }
+                return this._adapter;
+            }
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        internal System.Data.SqlClient.SqlConnection Connection {
+            get {
+                if ((this._connection == null)) {
+                    this.InitConnection();
+                }
+                return this._connection;
+            }
+            set {
+                this._connection = value;
+                if ((this.Adapter.InsertCommand != null)) {
+                    this.Adapter.InsertCommand.Connection = value;
+                }
+                if ((this.Adapter.DeleteCommand != null)) {
+                    this.Adapter.DeleteCommand.Connection = value;
+                }
+                if ((this.Adapter.UpdateCommand != null)) {
+                    this.Adapter.UpdateCommand.Connection = value;
+                }
+                for (int i = 0; (i < this.CommandCollection.Length); i = (i + 1)) {
+                    if ((this.CommandCollection[i] != null)) {
+                        ((System.Data.SqlClient.SqlCommand)(this.CommandCollection[i])).Connection = value;
+                    }
+                }
+            }
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        protected System.Data.SqlClient.SqlCommand[] CommandCollection {
+            get {
+                if ((this._commandCollection == null)) {
+                    this.InitCommandCollection();
+                }
+                return this._commandCollection;
+            }
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public bool ClearBeforeFill {
+            get {
+                return this._clearBeforeFill;
+            }
+            set {
+                this._clearBeforeFill = value;
+            }
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        private void InitAdapter() {
+            this._adapter = new System.Data.SqlClient.SqlDataAdapter();
+            System.Data.Common.DataTableMapping tableMapping = new System.Data.Common.DataTableMapping();
+            tableMapping.SourceTable = "Table";
+            tableMapping.DataSetTable = "GEOCODEM";
+            tableMapping.ColumnMappings.Add("refnum", "refnum");
+            tableMapping.ColumnMappings.Add("statecd", "statecd");
+            tableMapping.ColumnMappings.Add("county", "county");
+            tableMapping.ColumnMappings.Add("city", "city");
+            tableMapping.ColumnMappings.Add("zip", "zip");
+            tableMapping.ColumnMappings.Add("name", "name");
+            tableMapping.ColumnMappings.Add("address", "address");
+            tableMapping.ColumnMappings.Add("gdtplus4", "gdtplus4");
+            tableMapping.ColumnMappings.Add("gdtsad", "gdtsad");
+            tableMapping.ColumnMappings.Add("gdtcity", "gdtcity");
+            tableMapping.ColumnMappings.Add("gdtstatecd", "gdtstatecd");
+            tableMapping.ColumnMappings.Add("gdtpcode", "gdtpcode");
+            tableMapping.ColumnMappings.Add("gdtlat", "gdtlat");
+            tableMapping.ColumnMappings.Add("gdtlong", "gdtlong");
+            tableMapping.ColumnMappings.Add("gdtxin", "gdtxin");
+            tableMapping.ColumnMappings.Add("gdtstat", "gdtstat");
+            this._adapter.TableMappings.Add(tableMapping);
+            this._adapter.DeleteCommand = new System.Data.SqlClient.SqlCommand();
+            this._adapter.DeleteCommand.Connection = this.Connection;
+            this._adapter.DeleteCommand.CommandText = @"DELETE FROM [dbo].[GEOCODEM] WHERE (([refnum] = @Original_refnum) AND ((@IsNull_statecd = 1 AND [statecd] IS NULL) OR ([statecd] = @Original_statecd)) AND ([county] = @Original_county) AND ([city] = @Original_city) AND ((@IsNull_zip = 1 AND [zip] IS NULL) OR ([zip] = @Original_zip)) AND ([name] = @Original_name) AND ([address] = @Original_address) AND ((@IsNull_gdtplus4 = 1 AND [gdtplus4] IS NULL) OR ([gdtplus4] = @Original_gdtplus4)) AND ((@IsNull_gdtsad = 1 AND [gdtsad] IS NULL) OR ([gdtsad] = @Original_gdtsad)) AND ((@IsNull_gdtcity = 1 AND [gdtcity] IS NULL) OR ([gdtcity] = @Original_gdtcity)) AND ((@IsNull_gdtstatecd = 1 AND [gdtstatecd] IS NULL) OR ([gdtstatecd] = @Original_gdtstatecd)) AND ((@IsNull_gdtpcode = 1 AND [gdtpcode] IS NULL) OR ([gdtpcode] = @Original_gdtpcode)) AND ((@IsNull_gdtlat = 1 AND [gdtlat] IS NULL) OR ([gdtlat] = @Original_gdtlat)) AND ((@IsNull_gdtlong = 1 AND [gdtlong] IS NULL) OR ([gdtlong] = @Original_gdtlong)) AND ((@IsNull_gdtxin = 1 AND [gdtxin] IS NULL) OR ([gdtxin] = @Original_gdtxin)) AND ([gdtstat] = @Original_gdtstat))";
+            this._adapter.DeleteCommand.CommandType = System.Data.CommandType.Text;
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_refnum", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "refnum", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_statecd", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "statecd", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_statecd", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "statecd", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_county", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "county", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_city", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "city", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_zip", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "zip", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_zip", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "zip", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_name", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "name", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_address", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "address", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtplus4", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtplus4", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtplus4", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtplus4", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtsad", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtsad", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtsad", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtsad", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtcity", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtcity", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtcity", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtcity", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtstatecd", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtstatecd", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtstatecd", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtstatecd", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtpcode", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtpcode", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtpcode", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtpcode", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtlat", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtlat", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtlat", System.Data.SqlDbType.Decimal, 0, System.Data.ParameterDirection.Input, 18, 10, "gdtlat", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtlong", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtlong", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtlong", System.Data.SqlDbType.Decimal, 0, System.Data.ParameterDirection.Input, 18, 11, "gdtlong", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtxin", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtxin", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtxin", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtxin", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtstat", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtstat", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.InsertCommand = new System.Data.SqlClient.SqlCommand();
+            this._adapter.InsertCommand.Connection = this.Connection;
+            this._adapter.InsertCommand.CommandText = @"INSERT INTO [dbo].[GEOCODEM] ([refnum], [statecd], [county], [city], [zip], [name], [address], [gdtplus4], [gdtsad], [gdtcity], [gdtstatecd], [gdtpcode], [gdtlat], [gdtlong], [gdtxin], [gdtstat]) VALUES (@refnum, @statecd, @county, @city, @zip, @name, @address, @gdtplus4, @gdtsad, @gdtcity, @gdtstatecd, @gdtpcode, @gdtlat, @gdtlong, @gdtxin, @gdtstat);
+SELECT refnum, statecd, county, city, zip, name, address, gdtplus4, gdtsad, gdtcity, gdtstatecd, gdtpcode, gdtlat, gdtlong, gdtxin, gdtstat FROM GEOCODEM WHERE (refnum = @refnum)";
+            this._adapter.InsertCommand.CommandType = System.Data.CommandType.Text;
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@refnum", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "refnum", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@statecd", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "statecd", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@county", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "county", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@city", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "city", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@zip", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "zip", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@name", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "name", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@address", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "address", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtplus4", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtplus4", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtsad", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtsad", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtcity", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtcity", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtstatecd", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtstatecd", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtpcode", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtpcode", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtlat", System.Data.SqlDbType.Decimal, 0, System.Data.ParameterDirection.Input, 18, 10, "gdtlat", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtlong", System.Data.SqlDbType.Decimal, 0, System.Data.ParameterDirection.Input, 18, 11, "gdtlong", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtxin", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtxin", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtstat", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtstat", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand = new System.Data.SqlClient.SqlCommand();
+            this._adapter.UpdateCommand.Connection = this.Connection;
+            this._adapter.UpdateCommand.CommandText = "UPDATE [dbo].[GEOCODEM] SET [refnum] = @refnum, [statecd] = @statecd, [county] = " +
+                "@county, [city] = @city, [zip] = @zip, [name] = @name, [address] = @address, [gd" +
+                "tplus4] = @gdtplus4, [gdtsad] = @gdtsad, [gdtcity] = @gdtcity, [gdtstatecd] = @g" +
+                "dtstatecd, [gdtpcode] = @gdtpcode, [gdtlat] = @gdtlat, [gdtlong] = @gdtlong, [gd" +
+                "txin] = @gdtxin, [gdtstat] = @gdtstat WHERE (([refnum] = @Original_refnum) AND (" +
+                "(@IsNull_statecd = 1 AND [statecd] IS NULL) OR ([statecd] = @Original_statecd)) " +
+                "AND ([county] = @Original_county) AND ([city] = @Original_city) AND ((@IsNull_zi" +
+                "p = 1 AND [zip] IS NULL) OR ([zip] = @Original_zip)) AND ([name] = @Original_nam" +
+                "e) AND ([address] = @Original_address) AND ((@IsNull_gdtplus4 = 1 AND [gdtplus4]" +
+                " IS NULL) OR ([gdtplus4] = @Original_gdtplus4)) AND ((@IsNull_gdtsad = 1 AND [gd" +
+                "tsad] IS NULL) OR ([gdtsad] = @Original_gdtsad)) AND ((@IsNull_gdtcity = 1 AND [" +
+                "gdtcity] IS NULL) OR ([gdtcity] = @Original_gdtcity)) AND ((@IsNull_gdtstatecd =" +
+                " 1 AND [gdtstatecd] IS NULL) OR ([gdtstatecd] = @Original_gdtstatecd)) AND ((@Is" +
+                "Null_gdtpcode = 1 AND [gdtpcode] IS NULL) OR ([gdtpcode] = @Original_gdtpcode)) " +
+                "AND ((@IsNull_gdtlat = 1 AND [gdtlat] IS NULL) OR ([gdtlat] = @Original_gdtlat))" +
+                " AND ((@IsNull_gdtlong = 1 AND [gdtlong] IS NULL) OR ([gdtlong] = @Original_gdtl" +
+                "ong)) AND ((@IsNull_gdtxin = 1 AND [gdtxin] IS NULL) OR ([gdtxin] = @Original_gd" +
+                "txin)) AND ([gdtstat] = @Original_gdtstat));\r\nSELECT refnum, statecd, county, ci" +
+                "ty, zip, name, address, gdtplus4, gdtsad, gdtcity, gdtstatecd, gdtpcode, gdtlat," +
+                " gdtlong, gdtxin, gdtstat FROM GEOCODEM WHERE (refnum = @refnum)";
+            this._adapter.UpdateCommand.CommandType = System.Data.CommandType.Text;
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@refnum", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "refnum", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@statecd", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "statecd", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@county", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "county", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@city", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "city", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@zip", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "zip", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@name", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "name", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@address", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "address", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtplus4", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtplus4", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtsad", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtsad", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtcity", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtcity", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtstatecd", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtstatecd", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtpcode", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtpcode", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtlat", System.Data.SqlDbType.Decimal, 0, System.Data.ParameterDirection.Input, 18, 10, "gdtlat", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtlong", System.Data.SqlDbType.Decimal, 0, System.Data.ParameterDirection.Input, 18, 11, "gdtlong", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtxin", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtxin", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@gdtstat", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtstat", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_refnum", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "refnum", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_statecd", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "statecd", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_statecd", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "statecd", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_county", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "county", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_city", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "city", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_zip", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "zip", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_zip", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "zip", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_name", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "name", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_address", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "address", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtplus4", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtplus4", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtplus4", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtplus4", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtsad", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtsad", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtsad", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtsad", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtcity", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtcity", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtcity", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtcity", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtstatecd", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtstatecd", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtstatecd", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtstatecd", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtpcode", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtpcode", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtpcode", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtpcode", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtlat", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtlat", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtlat", System.Data.SqlDbType.Decimal, 0, System.Data.ParameterDirection.Input, 18, 10, "gdtlat", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtlong", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtlong", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtlong", System.Data.SqlDbType.Decimal, 0, System.Data.ParameterDirection.Input, 18, 11, "gdtlong", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@IsNull_gdtxin", System.Data.SqlDbType.Int, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtxin", System.Data.DataRowVersion.Original, true, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtxin", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtxin", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new System.Data.SqlClient.SqlParameter("@Original_gdtstat", System.Data.SqlDbType.VarChar, 0, System.Data.ParameterDirection.Input, 0, 0, "gdtstat", System.Data.DataRowVersion.Original, false, null, "", "", ""));
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        private void InitConnection() {
+            this._connection = new System.Data.SqlClient.SqlConnection();
+            this._connection.ConnectionString = global::NRHPStubber.Properties.Settings.Default.NRHP20070628;
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        private void InitCommandCollection() {
+            this._commandCollection = new System.Data.SqlClient.SqlCommand[1];
+            this._commandCollection[0] = new System.Data.SqlClient.SqlCommand();
+            this._commandCollection[0].Connection = this.Connection;
+            this._commandCollection[0].CommandText = "SELECT refnum, statecd, county, city, zip, name, address, gdtplus4, gdtsad, gdtci" +
+                "ty, gdtstatecd, gdtpcode, gdtlat, gdtlong, gdtxin, gdtstat FROM GEOCODEM";
+            this._commandCollection[0].CommandType = System.Data.CommandType.Text;
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+        [System.ComponentModel.DataObjectMethodAttribute(System.ComponentModel.DataObjectMethodType.Fill, true)]
+        public virtual int Fill(NrhpDatabase.GEOCODEMDataTable dataTable) {
+            this.Adapter.SelectCommand = this.CommandCollection[0];
+            if ((this.ClearBeforeFill == true)) {
+                dataTable.Clear();
+            }
+            int returnValue = this.Adapter.Fill(dataTable);
+            return returnValue;
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+        [System.ComponentModel.DataObjectMethodAttribute(System.ComponentModel.DataObjectMethodType.Select, true)]
+        public virtual NrhpDatabase.GEOCODEMDataTable GetData() {
+            this.Adapter.SelectCommand = this.CommandCollection[0];
+            NrhpDatabase.GEOCODEMDataTable dataTable = new NrhpDatabase.GEOCODEMDataTable();
+            this.Adapter.Fill(dataTable);
+            return dataTable;
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+        public virtual int Update(NrhpDatabase.GEOCODEMDataTable dataTable) {
+            return this.Adapter.Update(dataTable);
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+        public virtual int Update(NrhpDatabase dataSet) {
+            return this.Adapter.Update(dataSet, "GEOCODEM");
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+        public virtual int Update(System.Data.DataRow dataRow) {
+            return this.Adapter.Update(new System.Data.DataRow[] {
+                        dataRow});
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+        public virtual int Update(System.Data.DataRow[] dataRows) {
+            return this.Adapter.Update(dataRows);
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+        [System.ComponentModel.DataObjectMethodAttribute(System.ComponentModel.DataObjectMethodType.Delete, true)]
+        public virtual int Delete(
+                    int Original_refnum, 
+                    string Original_statecd, 
+                    string Original_county, 
+                    string Original_city, 
+                    string Original_zip, 
+                    string Original_name, 
+                    string Original_address, 
+                    string Original_gdtplus4, 
+                    string Original_gdtsad, 
+                    string Original_gdtcity, 
+                    string Original_gdtstatecd, 
+                    string Original_gdtpcode, 
+                    System.Nullable<decimal> Original_gdtlat, 
+                    System.Nullable<decimal> Original_gdtlong, 
+                    string Original_gdtxin, 
+                    string Original_gdtstat) {
+            this.Adapter.DeleteCommand.Parameters[0].Value = ((int)(Original_refnum));
+            if ((Original_statecd == null)) {
+                this.Adapter.DeleteCommand.Parameters[1].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[2].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[1].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[2].Value = ((string)(Original_statecd));
+            }
+            if ((Original_county == null)) {
+                throw new System.ArgumentNullException("Original_county");
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[3].Value = ((string)(Original_county));
+            }
+            if ((Original_city == null)) {
+                throw new System.ArgumentNullException("Original_city");
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[4].Value = ((string)(Original_city));
+            }
+            if ((Original_zip == null)) {
+                this.Adapter.DeleteCommand.Parameters[5].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[6].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[5].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[6].Value = ((string)(Original_zip));
+            }
+            if ((Original_name == null)) {
+                throw new System.ArgumentNullException("Original_name");
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[7].Value = ((string)(Original_name));
+            }
+            if ((Original_address == null)) {
+                throw new System.ArgumentNullException("Original_address");
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[8].Value = ((string)(Original_address));
+            }
+            if ((Original_gdtplus4 == null)) {
+                this.Adapter.DeleteCommand.Parameters[9].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[10].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[9].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[10].Value = ((string)(Original_gdtplus4));
+            }
+            if ((Original_gdtsad == null)) {
+                this.Adapter.DeleteCommand.Parameters[11].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[12].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[11].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[12].Value = ((string)(Original_gdtsad));
+            }
+            if ((Original_gdtcity == null)) {
+                this.Adapter.DeleteCommand.Parameters[13].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[14].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[13].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[14].Value = ((string)(Original_gdtcity));
+            }
+            if ((Original_gdtstatecd == null)) {
+                this.Adapter.DeleteCommand.Parameters[15].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[16].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[15].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[16].Value = ((string)(Original_gdtstatecd));
+            }
+            if ((Original_gdtpcode == null)) {
+                this.Adapter.DeleteCommand.Parameters[17].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[18].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[17].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[18].Value = ((string)(Original_gdtpcode));
+            }
+            if ((Original_gdtlat.HasValue == true)) {
+                this.Adapter.DeleteCommand.Parameters[19].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[20].Value = ((decimal)(Original_gdtlat.Value));
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[19].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[20].Value = System.DBNull.Value;
+            }
+            if ((Original_gdtlong.HasValue == true)) {
+                this.Adapter.DeleteCommand.Parameters[21].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[22].Value = ((decimal)(Original_gdtlong.Value));
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[21].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[22].Value = System.DBNull.Value;
+            }
+            if ((Original_gdtxin == null)) {
+                this.Adapter.DeleteCommand.Parameters[23].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[24].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[23].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[24].Value = ((string)(Original_gdtxin));
+            }
+            if ((Original_gdtstat == null)) {
+                throw new System.ArgumentNullException("Original_gdtstat");
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[25].Value = ((string)(Original_gdtstat));
+            }
+            System.Data.ConnectionState previousConnectionState = this.Adapter.DeleteCommand.Connection.State;
+            if (((this.Adapter.DeleteCommand.Connection.State & System.Data.ConnectionState.Open) 
+                        != System.Data.ConnectionState.Open)) {
+                this.Adapter.DeleteCommand.Connection.Open();
+            }
+            try {
+                int returnValue = this.Adapter.DeleteCommand.ExecuteNonQuery();
+                return returnValue;
+            }
+            finally {
+                if ((previousConnectionState == System.Data.ConnectionState.Closed)) {
+                    this.Adapter.DeleteCommand.Connection.Close();
+                }
+            }
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+        [System.ComponentModel.DataObjectMethodAttribute(System.ComponentModel.DataObjectMethodType.Insert, true)]
+        public virtual int Insert(
+                    int refnum, 
+                    string statecd, 
+                    string county, 
+                    string city, 
+                    string zip, 
+                    string name, 
+                    string address, 
+                    string gdtplus4, 
+                    string gdtsad, 
+                    string gdtcity, 
+                    string gdtstatecd, 
+                    string gdtpcode, 
+                    System.Nullable<decimal> gdtlat, 
+                    System.Nullable<decimal> gdtlong, 
+                    string gdtxin, 
+                    string gdtstat) {
+            this.Adapter.InsertCommand.Parameters[0].Value = ((int)(refnum));
+            if ((statecd == null)) {
+                this.Adapter.InsertCommand.Parameters[1].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[1].Value = ((string)(statecd));
+            }
+            if ((county == null)) {
+                throw new System.ArgumentNullException("county");
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[2].Value = ((string)(county));
+            }
+            if ((city == null)) {
+                throw new System.ArgumentNullException("city");
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[3].Value = ((string)(city));
+            }
+            if ((zip == null)) {
+                this.Adapter.InsertCommand.Parameters[4].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[4].Value = ((string)(zip));
+            }
+            if ((name == null)) {
+                throw new System.ArgumentNullException("name");
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[5].Value = ((string)(name));
+            }
+            if ((address == null)) {
+                throw new System.ArgumentNullException("address");
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[6].Value = ((string)(address));
+            }
+            if ((gdtplus4 == null)) {
+                this.Adapter.InsertCommand.Parameters[7].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[7].Value = ((string)(gdtplus4));
+            }
+            if ((gdtsad == null)) {
+                this.Adapter.InsertCommand.Parameters[8].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[8].Value = ((string)(gdtsad));
+            }
+            if ((gdtcity == null)) {
+                this.Adapter.InsertCommand.Parameters[9].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[9].Value = ((string)(gdtcity));
+            }
+            if ((gdtstatecd == null)) {
+                this.Adapter.InsertCommand.Parameters[10].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[10].Value = ((string)(gdtstatecd));
+            }
+            if ((gdtpcode == null)) {
+                this.Adapter.InsertCommand.Parameters[11].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[11].Value = ((string)(gdtpcode));
+            }
+            if ((gdtlat.HasValue == true)) {
+                this.Adapter.InsertCommand.Parameters[12].Value = ((decimal)(gdtlat.Value));
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[12].Value = System.DBNull.Value;
+            }
+            if ((gdtlong.HasValue == true)) {
+                this.Adapter.InsertCommand.Parameters[13].Value = ((decimal)(gdtlong.Value));
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[13].Value = System.DBNull.Value;
+            }
+            if ((gdtxin == null)) {
+                this.Adapter.InsertCommand.Parameters[14].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[14].Value = ((string)(gdtxin));
+            }
+            if ((gdtstat == null)) {
+                throw new System.ArgumentNullException("gdtstat");
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[15].Value = ((string)(gdtstat));
+            }
+            System.Data.ConnectionState previousConnectionState = this.Adapter.InsertCommand.Connection.State;
+            if (((this.Adapter.InsertCommand.Connection.State & System.Data.ConnectionState.Open) 
+                        != System.Data.ConnectionState.Open)) {
+                this.Adapter.InsertCommand.Connection.Open();
+            }
+            try {
+                int returnValue = this.Adapter.InsertCommand.ExecuteNonQuery();
+                return returnValue;
+            }
+            finally {
+                if ((previousConnectionState == System.Data.ConnectionState.Closed)) {
+                    this.Adapter.InsertCommand.Connection.Close();
+                }
+            }
+        }
+        
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+        [System.ComponentModel.DataObjectMethodAttribute(System.ComponentModel.DataObjectMethodType.Update, true)]
+        public virtual int Update(
+                    int refnum, 
+                    string statecd, 
+                    string county, 
+                    string city, 
+                    string zip, 
+                    string name, 
+                    string address, 
+                    string gdtplus4, 
+                    string gdtsad, 
+                    string gdtcity, 
+                    string gdtstatecd, 
+                    string gdtpcode, 
+                    System.Nullable<decimal> gdtlat, 
+                    System.Nullable<decimal> gdtlong, 
+                    string gdtxin, 
+                    string gdtstat, 
+                    int Original_refnum, 
+                    string Original_statecd, 
+                    string Original_county, 
+                    string Original_city, 
+                    string Original_zip, 
+                    string Original_name, 
+                    string Original_address, 
+                    string Original_gdtplus4, 
+                    string Original_gdtsad, 
+                    string Original_gdtcity, 
+                    string Original_gdtstatecd, 
+                    string Original_gdtpcode, 
+                    System.Nullable<decimal> Original_gdtlat, 
+                    System.Nullable<decimal> Original_gdtlong, 
+                    string Original_gdtxin, 
+                    string Original_gdtstat) {
+            this.Adapter.UpdateCommand.Parameters[0].Value = ((int)(refnum));
+            if ((statecd == null)) {
+                this.Adapter.UpdateCommand.Parameters[1].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[1].Value = ((string)(statecd));
+            }
+            if ((county == null)) {
+                throw new System.ArgumentNullException("county");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[2].Value = ((string)(county));
+            }
+            if ((city == null)) {
+                throw new System.ArgumentNullException("city");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[3].Value = ((string)(city));
+            }
+            if ((zip == null)) {
+                this.Adapter.UpdateCommand.Parameters[4].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[4].Value = ((string)(zip));
+            }
+            if ((name == null)) {
+                throw new System.ArgumentNullException("name");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[5].Value = ((string)(name));
+            }
+            if ((address == null)) {
+                throw new System.ArgumentNullException("address");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[6].Value = ((string)(address));
+            }
+            if ((gdtplus4 == null)) {
+                this.Adapter.UpdateCommand.Parameters[7].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[7].Value = ((string)(gdtplus4));
+            }
+            if ((gdtsad == null)) {
+                this.Adapter.UpdateCommand.Parameters[8].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[8].Value = ((string)(gdtsad));
+            }
+            if ((gdtcity == null)) {
+                this.Adapter.UpdateCommand.Parameters[9].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[9].Value = ((string)(gdtcity));
+            }
+            if ((gdtstatecd == null)) {
+                this.Adapter.UpdateCommand.Parameters[10].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[10].Value = ((string)(gdtstatecd));
+            }
+            if ((gdtpcode == null)) {
+                this.Adapter.UpdateCommand.Parameters[11].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[11].Value = ((string)(gdtpcode));
+            }
+            if ((gdtlat.HasValue == true)) {
+                this.Adapter.UpdateCommand.Parameters[12].Value = ((decimal)(gdtlat.Value));
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[12].Value = System.DBNull.Value;
+            }
+            if ((gdtlong.HasValue == true)) {
+                this.Adapter.UpdateCommand.Parameters[13].Value = ((decimal)(gdtlong.Value));
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[13].Value = System.DBNull.Value;
+            }
+            if ((gdtxin == null)) {
+                this.Adapter.UpdateCommand.Parameters[14].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[14].Value = ((string)(gdtxin));
+            }
+            if ((gdtstat == null)) {
+                throw new System.ArgumentNullException("gdtstat");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[15].Value = ((string)(gdtstat));
+            }
+            this.Adapter.UpdateCommand.Parameters[16].Value = ((int)(Original_refnum));
+            if ((Original_statecd == null)) {
+                this.Adapter.UpdateCommand.Parameters[17].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[18].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[17].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[18].Value = ((string)(Original_statecd));
+            }
+            if ((Original_county == null)) {
+                throw new System.ArgumentNullException("Original_county");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[19].Value = ((string)(Original_county));
+            }
+            if ((Original_city == null)) {
+                throw new System.ArgumentNullException("Original_city");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[20].Value = ((string)(Original_city));
+            }
+            if ((Original_zip == null)) {
+                this.Adapter.UpdateCommand.Parameters[21].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[22].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[21].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[22].Value = ((string)(Original_zip));
+            }
+            if ((Original_name == null)) {
+                throw new System.ArgumentNullException("Original_name");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[23].Value = ((string)(Original_name));
+            }
+            if ((Original_address == null)) {
+                throw new System.ArgumentNullException("Original_address");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[24].Value = ((string)(Original_address));
+            }
+            if ((Original_gdtplus4 == null)) {
+                this.Adapter.UpdateCommand.Parameters[25].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[26].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[25].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[26].Value = ((string)(Original_gdtplus4));
+            }
+            if ((Original_gdtsad == null)) {
+                this.Adapter.UpdateCommand.Parameters[27].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[28].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[27].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[28].Value = ((string)(Original_gdtsad));
+            }
+            if ((Original_gdtcity == null)) {
+                this.Adapter.UpdateCommand.Parameters[29].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[30].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[29].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[30].Value = ((string)(Original_gdtcity));
+            }
+            if ((Original_gdtstatecd == null)) {
+                this.Adapter.UpdateCommand.Parameters[31].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[32].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[31].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[32].Value = ((string)(Original_gdtstatecd));
+            }
+            if ((Original_gdtpcode == null)) {
+                this.Adapter.UpdateCommand.Parameters[33].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[34].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[33].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[34].Value = ((string)(Original_gdtpcode));
+            }
+            if ((Original_gdtlat.HasValue == true)) {
+                this.Adapter.UpdateCommand.Parameters[35].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[36].Value = ((decimal)(Original_gdtlat.Value));
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[35].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[36].Value = System.DBNull.Value;
+            }
+            if ((Original_gdtlong.HasValue == true)) {
+                this.Adapter.UpdateCommand.Parameters[37].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[38].Value = ((decimal)(Original_gdtlong.Value));
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[37].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[38].Value = System.DBNull.Value;
+            }
+            if ((Original_gdtxin == null)) {
+                this.Adapter.UpdateCommand.Parameters[39].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[40].Value = System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[39].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[40].Value = ((string)(Original_gdtxin));
+            }
+            if ((Original_gdtstat == null)) {
+                throw new System.ArgumentNullException("Original_gdtstat");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[41].Value = ((string)(Original_gdtstat));
             }
             System.Data.ConnectionState previousConnectionState = this.Adapter.UpdateCommand.Connection.State;
             if (((this.Adapter.UpdateCommand.Connection.State & System.Data.ConnectionState.Open) 

@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
+using Tyng.ComponentModel;
 
 namespace Tyng.MediaWiki
 {
-    public sealed class PageSectionCollection : BindingList<PageSection>, ICloneable
+    [Serializable]
+    public sealed class PageSectionCollection : BusinessObjectCollection<PageSectionCollection, PageSection>
     {
         #region Constructors and Factory
         private PageSectionCollection() { }
@@ -24,6 +24,62 @@ namespace Tyng.MediaWiki
             return new PageSectionCollection(ParseSections(content));
         }
         #endregion
+
+        public PageSection[] GetTopLevel()
+        {
+            List<PageSection> list = new List<PageSection>();
+
+            for (int i = 0; i < this.Count; i++)
+            {
+                if (this[i].HeadingLevel == PageSection.MinHeadingLevel)
+                    list.Add(this[i]);
+            }
+
+            return list.ToArray();
+        }
+
+        public PageSection[] GetChildren(int index)
+        {
+            int parentLevel = this[index].HeadingLevel;
+            List<PageSection> children = new List<PageSection>();
+
+            for (int i = index + 1; i < this.Count; i++)
+            {
+                if (this[i].HeadingLevel <= parentLevel) break;
+
+                if (this[i].HeadingLevel == parentLevel + 1)
+                    children.Add(this[i]);
+            }
+
+            return children.ToArray();
+        }
+
+        public PageSection Find(string path)
+        {
+            string[] parts = path.Split('/');
+            return FindInternal(parts, 0, PageSection.MinHeadingLevel, 0);
+        }
+
+        private PageSection FindInternal(string[] findPath, int pathIndex, int level, int startIndex)
+        {
+            for (int i = startIndex; i < this.Count; i++)
+            {
+                if (this[i].HeadingLevel < level) return null;
+
+                if (this[i].HeadingLevel == level && this[i].Heading == findPath[pathIndex])
+                {
+                    if (findPath.Length == pathIndex + 1) 
+                        return this[i];
+                    else
+                    {
+                        PageSection found = FindInternal(findPath, pathIndex + 1, level + 1, i + 1);
+                        if (found != null) return found;
+                    }
+                }
+            }
+
+            return null;
+        }
 
         public PageSection Add(string content)
         {
@@ -56,9 +112,11 @@ namespace Tyng.MediaWiki
         #region Section parsing
         private static IList<PageSection> ParseSections(string content)
         {
-            if (string.IsNullOrEmpty(content)) throw new ArgumentNullException("content");
+            if (content == null) throw new ArgumentNullException("content");
 
             List<PageSection> sections = new List<PageSection>();
+
+            if (content.Length == 0) return sections;
 
             using (StringReader sr = new StringReader(content))
             {
@@ -78,7 +136,7 @@ namespace Tyng.MediaWiki
                         if (testHead != null)
                         {
                             //end last section, start new section
-                            if (sectionContent != null)
+                            if (sectionContent != null || sectionHeader != null)
                             {
                                 //add section and reset
                                 sections.Add(PageSection.GetPageSection(sectionHeader, headingLevel, sectionContent));
@@ -102,7 +160,10 @@ namespace Tyng.MediaWiki
 
                     if (line != null)
                     {
-                        if (sectionContent == null) sectionContent = string.Empty;
+                        if (sectionContent == null)
+                            sectionContent = string.Empty;
+                        else if (sectionContent.Length > 0)
+                            sectionContent += "\n";
 
                         sectionContent += line;
                     }
@@ -110,7 +171,7 @@ namespace Tyng.MediaWiki
                     line = sr.ReadLine();
                 }
 
-                if (sectionContent != null)
+                if (sectionContent != null || sectionHeader != null)
                 {
                     //add section and reset
                     sections.Add(PageSection.GetPageSection(sectionHeader, headingLevel, sectionContent));
@@ -132,7 +193,7 @@ namespace Tyng.MediaWiki
 
             header = header.Substring(0, header.Length - (level + 1));
 
-            return header;
+            return header.Trim();
         }
 
         private static int CountChar(string toSearch, char toCount, bool consecutive)
@@ -148,145 +209,6 @@ namespace Tyng.MediaWiki
             return total;
         }
         #endregion
-
-        #region ICloneable Members
-
-        public PageSectionCollection Clone()
-        {
-            PageSectionCollection clone = new PageSectionCollection();
-            foreach (PageSection section in this)
-            {
-                clone.Add(section.Clone());
-            }
-            return clone;
-        }
-
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
-
-        #endregion
     }
 
-    [Serializable]
-    public sealed class PageSection : ICloneable
-    {
-        const int MinHeadingLevel = 1;
-        const int MaxHeadingLevel = 5;
-
-        int _headingLevel = 1;
-        string _heading;
-        string _content;
-
-        #region Constructors and Factory
-        private PageSection()
-        {
-            _headingLevel = 1;
-            _heading = null;
-            _content = string.Empty;
-        }
-
-        private PageSection(string content)
-        {
-            _headingLevel = 1;
-            _heading = null;
-            _content = content;
-        }
-        private PageSection(string heading, int headingLevel, string content)
-        {
-            if (headingLevel < MinHeadingLevel || headingLevel > MaxHeadingLevel) throw new ArgumentOutOfRangeException("headingLevel");
-
-            _heading = heading;
-            _headingLevel = headingLevel;
-            _content = content;
-        }
-
-        public static PageSection NewPageSection()
-        {
-            return new PageSection();
-        }
-
-        public static PageSection GetPageSection(string content)
-        {
-            return new PageSection(content);
-        }
-
-        public static PageSection GetPageSection(string heading, int headingLevel, string content)
-        {
-            return new PageSection(heading, headingLevel, content);
-        }
-        #endregion
-
-        public void AppendContent(string newContent)
-        {
-            if (string.IsNullOrEmpty(_content)) 
-                _content = newContent;
-            else
-                _content += newContent;
-        }
-
-        public string Heading 
-        { 
-            get 
-            { 
-                return _heading; 
-            }
-            set
-            {
-                _heading = value;
-            }
-        }
-        public string Content 
-        { 
-            get 
-            { return _content; }
-            set
-            {
-                _content = value;
-            }
-        }
-        public int HeadingLevel
-        { 
-            get 
-            { 
-                return _headingLevel; 
-            }
-            set
-            {
-                if (value < MinHeadingLevel || value > MaxHeadingLevel) throw new ArgumentOutOfRangeException("value");
-
-                _headingLevel = value;
-            }
-        }
-
-        #region ICloneable Members
-
-        public PageSection Clone()
-        {
-            PageSection o = (PageSection)Activator.CreateInstance(typeof(PageSection), true);
-            o._heading = _heading;
-            o._headingLevel = _headingLevel;
-            o._content = _content;
-            return o;
-        }
-
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
-
-        #endregion
-
-        internal void RenderContent(StringBuilder sb)
-        {
-            if (string.IsNullOrEmpty(Heading))
-            {
-                sb.Append(Content);
-                return;
-            }
-
-            sb.AppendFormat("{0} {1} {0}\n{2}", new string('=', HeadingLevel + 1), Heading, Content);
-        }
-    }
 }

@@ -16,7 +16,7 @@ namespace Tyng.MediaWiki
     public sealed class MediaWikiApi
     {
         internal const string RedirectRegex = @"^\s*#REDIRECT \[\[(?<title>[^\]\|]?[^\]]*)\]\]";
-        internal const string CategoryRegex = @"[[Category:(?<title>[^\]\|]?[^\]]*)\]\]";
+        internal const string CategoryRegex = @"\[\[Category:(?<title>[^\]\|]?[^\]]*)\]\]";
         internal const string FormContentType = "application/x-www-form-urlencoded";
         internal const string HiddenInputRegex = "type=['\"]hidden['\"] value=['\"](?<value>[^'\"]*?)['\"] name=['\"]{0}['\"]";
         internal const string HiddenInputRegexAlt = "type=['\"]hidden['\"] name=['\"]{0}['\"] value=['\"](?<value>[^'\"]*?)['\"]";
@@ -188,6 +188,10 @@ namespace Tyng.MediaWiki
 
         internal XmlDocument EditPage(string title, string newContent, string editSummary, bool minorEdit)
         {
+            if (string.IsNullOrEmpty(title)) throw new ArgumentNullException("title");
+            if (string.IsNullOrEmpty(newContent)) throw new ArgumentNullException("newContent");
+            if (string.IsNullOrEmpty(editSummary)) throw new ArgumentNullException("editSummary");
+
             string url = CombineUrlPath(Config.Server, Config.ScriptPath, Config.ScriptName + "?" + string.Format(EditQuery, Uri.EscapeDataString(title)));
 
             //TODO: move to API once its implemented there
@@ -265,7 +269,7 @@ namespace Tyng.MediaWiki
             do
             {
                 //TODO: once the edit api is implemented and it returns xml, can get rid of this...
-                xml = RequestApi("query", "prop=info", "titles=" + Uri.EscapeDataString(title));
+                xml = Page.FetchPageXml(this, "titles=" + Uri.EscapeDataString(title));
 
                 //poll it until page is ready...
                 page = (XmlElement)xml.SelectSingleNode("/api/query/pages/page");
