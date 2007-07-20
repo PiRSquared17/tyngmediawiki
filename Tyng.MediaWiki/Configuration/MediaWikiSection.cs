@@ -5,6 +5,8 @@ namespace Tyng.MediaWiki.Configuration
 {
     public sealed class MediaWikiSection : ConfigurationSection
     {
+        //TODO: need to validate that query sleep is >= 1000
+
          // Fields
         private static readonly ConfigurationProperty _propSleep = new ConfigurationProperty("sleep", typeof(ApiSleepSettingsCollection), null, ConfigurationPropertyOptions.None);
         private static readonly ConfigurationProperty _propSiteName = new ConfigurationProperty("siteName", typeof(string), "Wikipedia", null, new StringValidator(1), ConfigurationPropertyOptions.None);
@@ -38,7 +40,7 @@ namespace Tyng.MediaWiki.Configuration
         {
             base.InitializeDefault();
 
-            Sleep.Add(new ApiSleepSettings("query", 1000));
+            Sleep.Add(new ApiSleepSettings("query", 5000));
             Sleep.Add(new ApiSleepSettings("edit", 60000));
             Sleep.Add(new ApiSleepSettings("login", 60000));
         }

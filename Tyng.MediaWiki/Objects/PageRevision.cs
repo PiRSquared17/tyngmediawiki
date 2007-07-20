@@ -3,33 +3,49 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Tyng.ComponentModel;
 
 namespace Tyng.MediaWiki
 {
     [Serializable]
-    public class PageRevision : ICloneable
+    public class PageRevision : BusinessObject<PageRevision>
     {
         DateTime? _timestamp;
+        bool _isMinor;
         string _user;
         string _comment;
         PageSectionCollection _sections = PageSectionCollection.NewPageSectionCollection();
         string _redirectTitle;
-        CategoryCollection _explicitCategories;
+        CategoryCollection _explicitCategories = CategoryCollection.NewCategoryCollection();
+
+        #region Constructors and Factory
+        public static PageRevision NewPageRevision()
+        {
+            return new PageRevision();
+        }
+
+        internal static PageRevision GetPageRevision(XmlElement revision, bool isRedirect)
+        {
+            PageRevision pr = new PageRevision(revision, isRedirect);
+            pr.MarkClean();
+            pr.SetReadOnly();
+            return pr;
+        }
 
         private PageRevision() { }
 
-        internal PageRevision(XmlElement revision, bool isRedirect)
+        private PageRevision(XmlElement revision, bool isRedirect)
         {
             string text = revision.InnerText;
 
-            Match redirectMatch = Regex.Match(text, MediaWikiApi.RedirectRegex);
+            
             if (isRedirect)
             {
+                Match redirectMatch = Regex.Match(text, MediaWikiApi.RedirectRegex);
                 _redirectTitle = redirectMatch.Groups["title"].Value;
                 text = text.Replace(redirectMatch.Value, string.Empty);
             }
 
-            _explicitCategories = new CategoryCollection();
             MatchCollection categoryMatches = Regex.Matches(text, MediaWikiApi.CategoryRegex);
             foreach (Match m in categoryMatches)
             {
@@ -46,6 +62,29 @@ namespace Tyng.MediaWiki
             if (commentAtt != null)
                 _comment = revision.Attributes["comment"].Value;
         }
+        #endregion
+
+        public override void SetReadOnly()
+        {
+            base.SetReadOnly();
+            _sections.SetReadOnly();
+            _explicitCategories.SetReadOnly();
+        }
+
+        public override void SetEditable()
+        {
+            base.SetEditable();
+            _sections.SetEditable();
+            _explicitCategories.SetEditable();
+        }
+
+        public override bool IsDirty
+        {
+            get
+            {
+                return base.IsDirty || _sections.IsDirty || _explicitCategories.IsDirty;
+            }
+        }
 
         public DateTime? Timestamp { get { return _timestamp; } }
         public PageSectionCollection Sections { get { return _sections; } }
@@ -60,7 +99,9 @@ namespace Tyng.MediaWiki
             }
             set
             {
+                CanWriteProperty();
                 _redirectTitle = value;
+                MarkDirty();
             }
         }
 
@@ -72,7 +113,23 @@ namespace Tyng.MediaWiki
             }
             set
             {
+                CanWriteProperty();
                 _comment = value;
+                MarkDirty();
+            }
+        }
+
+        public bool IsMinor
+        {
+           get
+            {
+                return _isMinor;
+            }
+            set
+            {
+                CanWriteProperty();
+                _isMinor = value;
+                MarkDirty();
             }
         }
 
@@ -94,6 +151,8 @@ namespace Tyng.MediaWiki
 
         public string GetContent()
         {
+            if (!string.IsNullOrEmpty(_redirectTitle)) return string.Format("#REDIRECT [[{0}]]", _redirectTitle);
+
             StringBuilder sb = new StringBuilder();
 
             _sections.RenderContent(sb);
@@ -102,27 +161,5 @@ namespace Tyng.MediaWiki
 
             return sb.ToString();
         }
-
-        #region ICloneable Members
-
-        public PageRevision Clone()
-        {
-            PageRevision clone = new PageRevision();
-            clone._timestamp = _timestamp;
-            clone._user = null;
-            clone._comment = null;
-            clone._sections = _sections.Clone();
-            clone._redirectTitle = _redirectTitle;
-            clone._explicitCategories = _explicitCategories.Clone();
-
-            return clone;
-        }
-
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
-
-        #endregion
     }
 }

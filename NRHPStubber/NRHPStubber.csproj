@@ -113,6 +113,10 @@
     <Compile Include="Stubber.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Tyng.ComponentModel\Tyng.ComponentModel.csproj">
+      <Project>{E2035F10-85D6-4D6A-B1B8-BBFAE164C863}</Project>
+      <Name>Tyng.ComponentModel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Tyng.Google\Tyng.Google.csproj">
       <Project>{F506A5E6-E88A-4842-A2CB-0524B881ECB2}</Project>
       <Name>Tyng.Google</Name>
