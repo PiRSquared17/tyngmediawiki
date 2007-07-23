@@ -37,6 +37,7 @@ namespace NRHPStubber
             this.tstbCounty = new System.Windows.Forms.ToolStripTextBox();
             this.tsbStubCounty = new System.Windows.Forms.ToolStripButton();
             this.pROPMAINBindingNavigator = new System.Windows.Forms.ToolStrip();
+            this.tsbDisambig = new System.Windows.Forms.ToolStripButton();
             status = new System.Windows.Forms.StatusStrip();
             status.SuspendLayout();
             this.pROPMAINBindingNavigator.SuspendLayout();
@@ -107,12 +108,23 @@ namespace NRHPStubber
             this.tsbPossibleArticles,
             this.tsbFindMatches,
             this.tstbCounty,
-            this.tsbStubCounty});
+            this.tsbStubCounty,
+            this.tsbDisambig});
             this.pROPMAINBindingNavigator.Location = new System.Drawing.Point(0, 0);
             this.pROPMAINBindingNavigator.Name = "pROPMAINBindingNavigator";
             this.pROPMAINBindingNavigator.Size = new System.Drawing.Size(757, 25);
             this.pROPMAINBindingNavigator.TabIndex = 5;
             this.pROPMAINBindingNavigator.Text = "bindingNavigator1";
+            // 
+            // tsbDisambig
+            // 
+            this.tsbDisambig.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbDisambig.Image = ((System.Drawing.Image)(resources.GetObject("tsbDisambig.Image")));
+            this.tsbDisambig.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbDisambig.Name = "tsbDisambig";
+            this.tsbDisambig.Size = new System.Drawing.Size(53, 22);
+            this.tsbDisambig.Text = "Disambig";
+            this.tsbDisambig.Click += new System.EventHandler(this.tsbDisambig_Click);
             // 
             // MainForm
             // 
@@ -142,6 +154,7 @@ namespace NRHPStubber
         private System.Windows.Forms.ToolStripTextBox tstbCounty;
         private System.Windows.Forms.ToolStripButton tsbStubCounty;
         private System.Windows.Forms.ToolStrip pROPMAINBindingNavigator;
+        private System.Windows.Forms.ToolStripButton tsbDisambig;
     }
 }
 

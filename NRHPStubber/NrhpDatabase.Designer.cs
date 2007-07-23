@@ -26804,20 +26804,18 @@ ORDER BY pm.resname";
             this._commandCollection[2].Parameters.Add(new System.Data.SqlClient.SqlParameter("@countycd", System.Data.SqlDbType.VarChar, 6, System.Data.ParameterDirection.Input, 0, 0, "", System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._commandCollection[3] = new System.Data.SqlClient.SqlCommand();
             this._commandCollection[3].Connection = this.Connection;
-            this._commandCollection[3].CommandText = @"SELECT     pm.refnum, pm.resname, pm.address, pm.[restrict], pm.retypecd, pm.numcbldg, pm.numcsite, pm.numcstrc, pm.numcobj, pm.numnbldg, pm.numnsite, 
+            this._commandCollection[3].CommandText = @"SELECT pm.refnum, pm.resname, pm.address, pm.[restrict], pm.retypecd, pm.numcbldg, pm.numcsite, pm.numcstrc, pm.numcobj, pm.numnbldg, pm.numnsite, 
                       pm.numnstrc, pm.numnobj, pm.parknmcd, pm.certcd, pm.certdate, pm.descothr, pm.acre, pm.multname, pm.ArticleID, pm.CleanName, 
                       pm.MainArticleRefnum, sm.state AS PrimaryState, cm.county AS PrimaryCounty, cd.city AS PrimaryCity, cd.vicinity AS PrimaryVicinity
-FROM         PROPMAIN AS pm INNER JOIN
-                      COUNTYD AS cd ON cd.refnum = pm.refnum AND cd.primeflg = 1 INNER JOIN
-                      COUNTYM AS cm ON cm.countycd = cd.countycd INNER JOIN
-                      STATEM AS sm ON sm.statecd = cd.statecd
-WHERE     (pm.refnum IN
-                          (SELECT     refnum
-                            FROM          COUNTYD
-                            WHERE      (statecd = @state))) AND (pm.certcd IN ('LI', 'NL', 'UN'))
-ORDER BY pm.resname";
+FROM         STATEM AS sm INNER JOIN
+                      COUNTYD AS cd ON sm.statecd = cd.statecd INNER JOIN
+                      PROPMAIN AS pm ON cd.refnum = pm.refnum AND cd.primeflg = 1 INNER JOIN
+                      COUNTYM AS cm ON cm.countycd = cd.countycd
+WHERE     (pm.certcd IN ('LI', 'NL', 'UN')) AND Isnull(pm.CleanName, pm.Resname) like @name
+
+ORDER BY sm.state, case cd.vicinity when 1 then cm.county + ' County' else cd.city end, isnull(cleanname, resname)";
             this._commandCollection[3].CommandType = System.Data.CommandType.Text;
-            this._commandCollection[3].Parameters.Add(new System.Data.SqlClient.SqlParameter("@state", System.Data.SqlDbType.VarChar, 2, System.Data.ParameterDirection.Input, 0, 0, "", System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._commandCollection[3].Parameters.Add(new System.Data.SqlClient.SqlParameter("@name", System.Data.SqlDbType.VarChar, 1024, System.Data.ParameterDirection.Input, 0, 0, "", System.Data.DataRowVersion.Current, false, null, "", "", ""));
         }
         
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -26856,16 +26854,6 @@ ORDER BY pm.resname";
         
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
-        [System.ComponentModel.DataObjectMethodAttribute(System.ComponentModel.DataObjectMethodType.Select, false)]
-        public virtual NrhpDatabase.PROPMAINDataTable GetDataBy() {
-            this.Adapter.SelectCommand = this.CommandCollection[1];
-            NrhpDatabase.PROPMAINDataTable dataTable = new NrhpDatabase.PROPMAINDataTable();
-            this.Adapter.Fill(dataTable);
-            return dataTable;
-        }
-        
-        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [System.ComponentModel.DataObjectMethodAttribute(System.ComponentModel.DataObjectMethodType.Fill, false)]
         public virtual int FillByCountyToCreate(NrhpDatabase.PROPMAINDataTable dataTable, string countycd) {
             this.Adapter.SelectCommand = this.CommandCollection[2];
@@ -26884,52 +26872,20 @@ ORDER BY pm.resname";
         
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
-        [System.ComponentModel.DataObjectMethodAttribute(System.ComponentModel.DataObjectMethodType.Select, false)]
-        public virtual NrhpDatabase.PROPMAINDataTable GetDataByCountyToCreate(string countycd) {
-            this.Adapter.SelectCommand = this.CommandCollection[2];
-            if ((countycd == null)) {
-                throw new System.ArgumentNullException("countycd");
-            }
-            else {
-                this.Adapter.SelectCommand.Parameters[0].Value = ((string)(countycd));
-            }
-            NrhpDatabase.PROPMAINDataTable dataTable = new NrhpDatabase.PROPMAINDataTable();
-            this.Adapter.Fill(dataTable);
-            return dataTable;
-        }
-        
-        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [System.ComponentModel.DataObjectMethodAttribute(System.ComponentModel.DataObjectMethodType.Fill, false)]
-        public virtual int FillByState(NrhpDatabase.PROPMAINDataTable dataTable, string state) {
+        public virtual int FillByName(NrhpDatabase.PROPMAINDataTable dataTable, string name) {
             this.Adapter.SelectCommand = this.CommandCollection[3];
-            if ((state == null)) {
-                throw new System.ArgumentNullException("state");
+            if ((name == null)) {
+                throw new System.ArgumentNullException("name");
             }
             else {
-                this.Adapter.SelectCommand.Parameters[0].Value = ((string)(state));
+                this.Adapter.SelectCommand.Parameters[0].Value = ((string)(name));
             }
             if ((this.ClearBeforeFill == true)) {
                 dataTable.Clear();
             }
             int returnValue = this.Adapter.Fill(dataTable);
             return returnValue;
-        }
-        
-        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
-        [System.ComponentModel.DataObjectMethodAttribute(System.ComponentModel.DataObjectMethodType.Select, false)]
-        public virtual NrhpDatabase.PROPMAINDataTable GetDataByState(string state) {
-            this.Adapter.SelectCommand = this.CommandCollection[3];
-            if ((state == null)) {
-                throw new System.ArgumentNullException("state");
-            }
-            else {
-                this.Adapter.SelectCommand.Parameters[0].Value = ((string)(state));
-            }
-            NrhpDatabase.PROPMAINDataTable dataTable = new NrhpDatabase.PROPMAINDataTable();
-            this.Adapter.Fill(dataTable);
-            return dataTable;
         }
         
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]

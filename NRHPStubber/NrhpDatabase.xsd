@@ -2309,7 +2309,7 @@ WHERE     (refnum = @Original_refnum)</CommandText>
               <Mapping SourceColumn="PrimaryVicinity" DataSetColumn="PrimaryVicinity" />
             </Mappings>
             <Sources>
-              <DbSource ConnectionRef="NRHP20070628 (Settings)" DbObjectType="Unknown" FillMethodModifier="Public" FillMethodName="FillArticlesNeedingChecking" GenerateMethods="Both" GenerateShortCommands="True" GeneratorGetMethodName="GetDataBy" GeneratorSourceName="FillArticlesNeedingChecking" GetMethodModifier="Public" GetMethodName="GetDataBy" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="True" UserGetMethodName="GetDataBy" UserSourceName="FillArticlesNeedingChecking">
+              <DbSource ConnectionRef="NRHP20070628 (Settings)" DbObjectType="Unknown" FillMethodModifier="Public" FillMethodName="FillArticlesNeedingChecking" GenerateMethods="Fill" GenerateShortCommands="True" GeneratorGetMethodName="GetDataBy" GeneratorSourceName="FillArticlesNeedingChecking" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="True" UserGetMethodName="GetDataBy" UserSourceName="FillArticlesNeedingChecking">
                 <SelectCommand>
                   <DbCommand CommandType="Text" ModifiedByUser="True">
                     <CommandText>SELECT     pm.refnum, pm.resname, pm.address, pm.[restrict], pm.retypecd, pm.numcbldg, pm.numcsite, pm.numcstrc, pm.numcobj, pm.numnbldg, pm.numnsite, 
@@ -2332,7 +2332,7 @@ ORDER BY pm.resname</CommandText>
                   </DbCommand>
                 </SelectCommand>
               </DbSource>
-              <DbSource ConnectionRef="NRHP20070628 (Settings)" DbObjectType="Unknown" FillMethodModifier="Public" FillMethodName="FillByCountyToCreate" GenerateMethods="Both" GenerateShortCommands="True" GeneratorGetMethodName="GetDataByCountyToCreate" GeneratorSourceName="FillByCountyToCreate" GetMethodModifier="Public" GetMethodName="GetDataByCountyToCreate" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="True" UserGetMethodName="GetDataByCountyToCreate" UserSourceName="FillByCountyToCreate">
+              <DbSource ConnectionRef="NRHP20070628 (Settings)" DbObjectType="Unknown" FillMethodModifier="Public" FillMethodName="FillByCountyToCreate" GenerateMethods="Fill" GenerateShortCommands="True" GeneratorGetMethodName="GetDataByCountyToCreate" GeneratorSourceName="FillByCountyToCreate" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="True" UserGetMethodName="GetDataBy1" UserSourceName="FillByCountyToCreate">
                 <SelectCommand>
                   <DbCommand CommandType="Text" ModifiedByUser="True">
                     <CommandText>SELECT pm.refnum, pm.resname, pm.address, pm.[restrict], pm.retypecd, pm.numcbldg, pm.numcsite, pm.numcstrc, pm.numcobj, pm.numnbldg, pm.numnsite, 
@@ -2355,23 +2355,21 @@ ORDER BY pm.resname</CommandText>
                   </DbCommand>
                 </SelectCommand>
               </DbSource>
-              <DbSource ConnectionRef="NRHP20070628 (Settings)" DbObjectType="Unknown" FillMethodModifier="Public" FillMethodName="FillByState" GenerateMethods="Both" GenerateShortCommands="True" GeneratorGetMethodName="GetDataByState" GeneratorSourceName="FillByState" GetMethodModifier="Public" GetMethodName="GetDataByState" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="True" UserGetMethodName="GetDataByState" UserSourceName="FillByState">
+              <DbSource ConnectionRef="NRHP20070628 (Settings)" DbObjectType="Unknown" FillMethodModifier="Public" FillMethodName="FillByName" GenerateMethods="Fill" GenerateShortCommands="True" GeneratorGetMethodName="GetDataBy1" GeneratorSourceName="FillByName" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="True" UserGetMethodName="GetDataBy11" UserSourceName="FillByName">
                 <SelectCommand>
                   <DbCommand CommandType="Text" ModifiedByUser="True">
-                    <CommandText>SELECT     pm.refnum, pm.resname, pm.address, pm.[restrict], pm.retypecd, pm.numcbldg, pm.numcsite, pm.numcstrc, pm.numcobj, pm.numnbldg, pm.numnsite, 
+                    <CommandText>SELECT pm.refnum, pm.resname, pm.address, pm.[restrict], pm.retypecd, pm.numcbldg, pm.numcsite, pm.numcstrc, pm.numcobj, pm.numnbldg, pm.numnsite, 
                       pm.numnstrc, pm.numnobj, pm.parknmcd, pm.certcd, pm.certdate, pm.descothr, pm.acre, pm.multname, pm.ArticleID, pm.CleanName, 
                       pm.MainArticleRefnum, sm.state AS PrimaryState, cm.county AS PrimaryCounty, cd.city AS PrimaryCity, cd.vicinity AS PrimaryVicinity
-FROM         PROPMAIN AS pm INNER JOIN
-                      COUNTYD AS cd ON cd.refnum = pm.refnum AND cd.primeflg = 1 INNER JOIN
-                      COUNTYM AS cm ON cm.countycd = cd.countycd INNER JOIN
-                      STATEM AS sm ON sm.statecd = cd.statecd
-WHERE     (pm.refnum IN
-                          (SELECT     refnum
-                            FROM          COUNTYD
-                            WHERE      (statecd = @state))) AND (pm.certcd IN ('LI', 'NL', 'UN'))
-ORDER BY pm.resname</CommandText>
+FROM         STATEM AS sm INNER JOIN
+                      COUNTYD AS cd ON sm.statecd = cd.statecd INNER JOIN
+                      PROPMAIN AS pm ON cd.refnum = pm.refnum AND cd.primeflg = 1 INNER JOIN
+                      COUNTYM AS cm ON cm.countycd = cd.countycd
+WHERE     (pm.certcd IN ('LI', 'NL', 'UN')) AND Isnull(pm.CleanName, pm.Resname) like @name
+
+ORDER BY sm.state, case cd.vicinity when 1 then cm.county + ' County' else cd.city end, isnull(cleanname, resname)</CommandText>
                     <Parameters>
-                      <Parameter AllowDbNull="False" AutogeneratedName="state" ColumnName="" DataSourceName="" DataTypeServer="varchar(2)" DbType="AnsiString" Direction="Input" ParameterName="@state" Precision="0" Scale="0" Size="2" SourceColumn="" SourceColumnNullMapping="False" SourceVersion="Current">
+                      <Parameter AllowDbNull="False" AutogeneratedName="name" ColumnName="" DataSourceName="" DataTypeServer="unknown" DbType="AnsiString" Direction="Input" ParameterName="@name" Precision="0" Scale="0" Size="1024" SourceColumn="" SourceColumnNullMapping="False" SourceVersion="Current">
                       </Parameter>
                     </Parameters>
                   </DbCommand>

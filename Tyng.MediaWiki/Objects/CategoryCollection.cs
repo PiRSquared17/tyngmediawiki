@@ -16,6 +16,16 @@ namespace Tyng.MediaWiki
             return newCategory;
         }
 
+        public bool Contains(string categoryName)
+        {
+            categoryName = NamespaceUtility.StripNamespace(MediaWikiNamespace.Category, categoryName);
+
+            foreach (Category c in this)
+                if (string.CompareOrdinal(c.Title, categoryName) == 0) return true;
+
+            return false;
+        }
+
         public void AddRange(IEnumerable<string> categories)
         {
             foreach (string s in categories)
