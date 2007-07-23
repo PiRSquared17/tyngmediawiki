@@ -9,6 +9,8 @@ namespace NRHPStubber
 {
     public static class Stubber
     {
+        public const string CategoryAfR = "NrhpBot Articles for Review";
+
         public static void Stub(string county)
         {
             TextInfo ti = CultureInfo.CreateSpecificCulture("en").TextInfo;
@@ -58,50 +60,68 @@ namespace NRHPStubber
 
             foreach (NrhpDatabase.PROPMAINRow pm in db.PROPMAIN.Rows)
             {
-
-                string redirTitle;
-                string fullTitle;
+                string cleanName;
+                string name;
+                string title;
+                List<string> redirTitles = new List<string>();
 
                 if (pm.IsCleanNameNull())
-                    redirTitle = pm.resname.Trim();
+                    name = pm.resname.Trim();
                 else
-                    redirTitle = pm.CleanName.Trim();
+                    name = pm.CleanName.Trim();
 
-                if (redirTitle.IndexOf('(') >= 0)
+                cleanName = ContentHelper.PipeTrick(MediaWikiNamespace.Main, name);
+
+                string cityLocation = ti.ToTitleCase(ti.ToLower(pm.PrimaryCity));
+                string countyLocation = ti.ToTitleCase(ti.ToLower(pm.PrimaryCounty)) + " County";
+                string stateLocation = ti.ToTitleCase(ti.ToLower(pm.PrimaryState));
+                string preferredQualifier;
+
+                if (pm.PrimaryVicinity)
+                    preferredQualifier = countyLocation;
+                else
+                    preferredQualifier = cityLocation;
+
+                redirTitles.Add(string.Format("{0}", cleanName, cityLocation, countyLocation, stateLocation));
+                redirTitles.Add(string.Format("{0}, {1}", cleanName, cityLocation, countyLocation, stateLocation));
+                redirTitles.Add(string.Format("{0}, {2}", cleanName, cityLocation, countyLocation, stateLocation));
+                redirTitles.Add(string.Format("{0}, {3}", cleanName, cityLocation, countyLocation, stateLocation));
+                redirTitles.Add(string.Format("{0}, {1}, {3}", cleanName, cityLocation, countyLocation, stateLocation));
+                redirTitles.Add(string.Format("{0}, {2}, {3}", cleanName, cityLocation, countyLocation, stateLocation));
+                redirTitles.Add(string.Format("{0} ({1})", cleanName, cityLocation, countyLocation, stateLocation));
+                redirTitles.Add(string.Format("{0} ({2})", cleanName, cityLocation, countyLocation, stateLocation));
+                redirTitles.Add(string.Format("{0} ({3})", cleanName, cityLocation, countyLocation, stateLocation));
+                redirTitles.Add(string.Format("{0} ({1}, {3})", cleanName, cityLocation, countyLocation, stateLocation));
+                redirTitles.Add(string.Format("{0} ({2}, {3})", cleanName, cityLocation, countyLocation, stateLocation));
+
+                Page p = Page.GetPage(name);
+
+                if (name.IndexOf('(') >= 0 && p.IsMissing)
                 {
-                    fullTitle = redirTitle;
+                    title = name;
                 }
                 else
                 {
-                    string inStateLocation;
-
-                    if (pm.PrimaryVicinity)
-                        inStateLocation = ti.ToTitleCase(ti.ToLower(pm.PrimaryCounty)) + " County";
+                    if(name.StartsWith(preferredQualifier))
+                        title = name;
                     else
-                        inStateLocation = ti.ToTitleCase(ti.ToLower(pm.PrimaryCity));
-
-                    if (redirTitle.StartsWith(inStateLocation + " "))
-                    {
-                        fullTitle = redirTitle;
-                    }
-                    else
-                        fullTitle = string.Format("{0} ({1}, {2})", redirTitle, inStateLocation, ti.ToTitleCase(ti.ToLower(pm.PrimaryState)));
+                        title = string.Format("{0} ({1}, {2})", name, preferredQualifier, stateLocation);
                 }
 
                 Page talk;
-                Page p = Page.GetPage(fullTitle);
+                p = Page.GetPage(title);
                 if (!p.IsMissing)
                 {
                     talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
 
-                    talk.NewRevision.Categories.Add("NrhpBot Articles for Review");
+                    talk.NewRevision.Categories.Add(CategoryAfR);
                     talk.NewRevision.Comment = "tagging for review";
                     PageSection newSection = talk.NewRevision.Sections.Add("Bot Infobox", 1, "Below is the bot generated infobox in case someone wants to use it to clean up this page:\n\n");
-                    newSection.AppendContent(GetInfobox(db, pm.refnum, new Dictionary<string, string>(), redirTitle));
+                    newSection.AppendContent(GetInfobox(db, pm.refnum, new Dictionary<string, string>(), cleanName));
 
                     talk.Save();
 
-                    log.AppendFormat("Page [[{0}]] already exists, tagging talk for review.", fullTitle);
+                    log.AppendFormat("Page [[{0}]] already exists, tagging talk for review.", p.Title);
                 }
                 else
                 {
@@ -134,7 +154,7 @@ namespace NRHPStubber
 
                     pmta.Update(pm);
 
-                    if (fullTitle == redirTitle)
+                    if (title == name)
                     {
                         LinkCollection wlh = p.WhatLinksHere();
 
@@ -142,7 +162,7 @@ namespace NRHPStubber
                         {
                             talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
 
-                            talk.NewRevision.Categories.Add("NrhpBot Articles for Review");
+                            talk.NewRevision.Categories.Add(CategoryAfR);
                             talk.NewRevision.Comment = "Tagging for NRHP review";
                             talk.NewRevision.Sections.Add("Nrhp Review", 1, "This page appears to either have multiple or 0 links from pages whose names are like 'List of Registered Historic Places in *' ~~~~");
                             talk = talk.Save();
@@ -150,37 +170,71 @@ namespace NRHPStubber
                     }
                     else
                     {
-                        p = Page.GetPage(redirTitle);
-
-                        if (p.IsMissing)
+                        int list = 0;
+                        foreach (string redirTitle in redirTitles)
                         {
+                            bool create = redirTitle == cleanName;
+                            
+                            p = Page.GetPage(redirTitle);
+                            talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
+
                             LinkCollection wlh = p.WhatLinksHere();
-
-                            p.NewRevision.RedirectTitle = fullTitle;
-                            p.NewRevision.Comment = "Redirct to geo specific title by bot, contact [[User:Paultyng]] for info";
-                            p = p.Save();
-
-                            talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
-
-                            talk.NewRevision.AppendContent("{{WikiProject National Register of Historic Places|class=redirect}}");
-                            if (wlh.Count != 1 || !wlh[0].Title.StartsWith("List of Registered Historic Places in "))
+                            foreach (Link l in wlh)
                             {
-                                talk.NewRevision.Categories.Add("NrhpBot Articles for Review");
-                                talk.NewRevision.Sections.Add("Nrhp Review", 1, "This page appears to either have multiple or 0 links from pages whose names are like 'List of Registered Historic Places in *' ~~~~");
+                                if (l.Title.StartsWith("List of Registered Historic Places in "))
+                                {
+                                    list++;
+                                }
                             }
-                            talk.NewRevision.Comment = "Adding wikiproject template";
+
+                            if (p.IsMissing)
+                            {
+                                if (wlh.Count > 0) create = true;
+
+                                if (create)
+                                {
+                                    p.NewRevision.RedirectTitle = title;
+                                    p.NewRevision.Comment = "Redirct to geo specific title by bot, contact [[User:Paultyng]] for info";
+                                    p = p.Save();
+
+                                    talk.NewRevision.AppendContent("{{WikiProject National Register of Historic Places|class=redirect}}");
+                                    talk.NewRevision.Comment = "Adding wikiproject template";
+
+                                    log.AppendFormat("  [[{0}]] redirect added.", p.Title);
+                                }                                
+                            }
+                            else if(p.LastRevision.IsRedirect && p.LastRevision.RedirectTitle != title)
+                            {
+                                talk.NewRevision.Categories.Add(CategoryAfR);
+                                talk.NewRevision.Comment = "Tagging for Nrhp review";
+                                talk.NewRevision.Sections.Add("NrhpReview", 1, string.Format("This page is a redirect too '{0}' and it probably should be a redirect to '{1}' or a disambig page. ~~~~", p.LastRevision.RedirectTitle, title));
+                            }
+                            else
+                            {
+                                talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
+
+                                talk.NewRevision.Categories.Add(CategoryAfR);
+                                talk.NewRevision.Comment = "Tagging for NRHP review";
+                                talk.NewRevision.Sections.Add("Nrhp Review", 1, "This page was preexisting before the bot run, it may need to be redirected or disambiguated with '" + title + "'. ~~~~");
+                            }
+
                             talk = talk.Save();
-
-                            log.AppendFormat("[[{0}]] redirect added.", p.Title);
-
                         }
-                        else
-                        {
-                            talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
 
-                            talk.NewRevision.Categories.Add("NrhpBot Articles for Review");
-                            talk.NewRevision.Comment = "Tagging for NRHP review";
-                            talk.NewRevision.Sections.Add("Nrhp Review", 1, "This page was preexisting before the bot run, it may need to be redirected or disambiguated with '" + fullTitle + "'. ~~~~");
+                        if (list == 0)
+                        {
+                            talk = Page.GetPage(MediaWikiNamespace.MainTalk, title);
+                            talk.NewRevision.Categories.Add(CategoryAfR);
+                            talk.NewRevision.Sections.Add("Nrhp Review", 1, "This article has no Nrhp lists linking to it, this is probably an error. ~~~~");
+                            talk.NewRevision.Comment = "Tagging for Nrhp review";
+                            talk = talk.Save();
+                        }
+                        else if (list > 1)
+                        {
+                            talk = Page.GetPage(MediaWikiNamespace.MainTalk, title);
+                            talk.NewRevision.Categories.Add(CategoryAfR);
+                            talk.NewRevision.Sections.Add("Nrhp Review", 1, "This article has more than one Nrhp lists linking to it, this is probably an error. ~~~~");
+                            talk.NewRevision.Comment = "Tagging for Nrhp review";
                             talk = talk.Save();
                         }
                     }
@@ -194,7 +248,7 @@ namespace NRHPStubber
 
         }
 
-        private static void WriteLog(string log, DateTime date)
+        internal static void WriteLog(string log, DateTime date)
         {
             Page logPage = Page.GetPage(string.Format("User:NrhpBot/Logs/{0:yyyy}/{0:MMMM}/{0:dd}", date));
 

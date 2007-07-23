@@ -16,17 +16,9 @@ namespace NRHPStubber
 {
     public partial class MainForm : Form
     {
-        private DbProviderFactory _factory;
-        private string _connString;
-
         public MainForm()
         {
             InitializeComponent();
-
-            ConnectionStringSettings connection = ConfigurationManager.ConnectionStrings["NRHP20070628"];
-
-            _factory = DbProviderFactories.GetFactory(connection.ProviderName);
-            _connString = connection.ConnectionString;
         }
 
         private void FindMatches_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -64,6 +56,11 @@ namespace NRHPStubber
         private void bwFindMatches_DoWork(object sender, DoWorkEventArgs e)
         {
             MatchFinder.FindMatches(bwFindMatches);
+        }
+
+        private void tsbDisambig_Click(object sender, EventArgs e)
+        {
+            Disambig.CreateDisambigs();
         }
 
     }

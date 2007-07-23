@@ -283,13 +283,8 @@ namespace Tyng.MediaWiki
 
         internal XmlDocument RequestApi(ApiAction action, bool postData, Dictionary<string, string> parameters)
         {
-            if (action == ApiAction.Submit)
-            {
-                throw new ArgumentException("Cannot edit through this method, call EditPage instead", "action");
-            }
-
-            if (action == ApiAction.Move)
-                throw new NotSupportedException(string.Format("Action '{0}' is not supported.", action));
+            if (action == ApiAction.Move || action == ApiAction.None || action == ApiAction.Submit)
+                throw new ArgumentOutOfRangeException("action");
 
             UriBuilder uri = new UriBuilder(CombineUrlPath(Config.Server, Config.ScriptPath, Config.ApiName));
 
@@ -367,9 +362,22 @@ namespace Tyng.MediaWiki
 
         private static void Sleep(ApiAction sleepType)
         {
+            if (sleepType == ApiAction.None) throw new ArgumentOutOfRangeException("sleepType");
             if (!Config.Sleep.ContainsKey(sleepType)) throw new ArgumentException("Unexpected sleep type", "sleepType");
 
-            int sleepTime = Config.Sleep.GetSleep(sleepType);
+            ApiSleepSettings setting = Config.Sleep.GetSleep(sleepType);
+            List<ApiAction> chain = new List<ApiAction>();
+            chain.Add(sleepType);
+
+            while (setting.SharedSleep != ApiAction.None)
+            {
+                if (chain.Contains(setting.SharedSleep)) throw new InvalidOperationException("Circular sleep chain");
+                chain.Add(setting.SharedSleep);
+                setting = Config.Sleep.GetSleep(setting.SharedSleep);
+            }
+
+            int sleepTime = setting.Sleep;
+            sleepType = setting.Action;
 
             if (sleepTime < 1000) throw new InvalidOperationException("All sleep times must be >= 1000 (1 second).");
 

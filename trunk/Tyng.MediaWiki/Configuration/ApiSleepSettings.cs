@@ -6,7 +6,8 @@ namespace Tyng.MediaWiki.Configuration
     public sealed class ApiSleepSettings : ConfigurationElement
     {
         private static readonly ConfigurationProperty _propName = new ConfigurationProperty("action", typeof(ApiAction), null, null, null, ConfigurationPropertyOptions.IsKey | ConfigurationPropertyOptions.IsRequired);
-        private static readonly ConfigurationProperty _propSleep = new ConfigurationProperty("sleep", typeof(int), null, null, new IntegerValidator(0, int.MaxValue), ConfigurationPropertyOptions.IsRequired);
+        private static readonly ConfigurationProperty _propSleep = new ConfigurationProperty("sleep", typeof(int), null, null, new IntegerValidator(0, int.MaxValue), ConfigurationPropertyOptions.None);
+        private static readonly ConfigurationProperty _propShared = new ConfigurationProperty("sharedSleep", typeof(ApiAction), ApiAction.None, null, null, ConfigurationPropertyOptions.None);
         private static ConfigurationPropertyCollection _properties = new ConfigurationPropertyCollection();
 
 
@@ -15,10 +16,17 @@ namespace Tyng.MediaWiki.Configuration
         {
             _properties.Add(_propName);
             _properties.Add(_propSleep);
+            _properties.Add(_propShared);
         }
 
         public ApiSleepSettings()
         {
+        }
+
+        public ApiSleepSettings(ApiAction action, ApiAction share)
+        {
+            this.Action = action;
+            this.SharedSleep = share;
         }
 
         public ApiSleepSettings(ApiAction action, int sleep)
@@ -40,7 +48,7 @@ namespace Tyng.MediaWiki.Configuration
             }
         }
 
-        [ConfigurationProperty("sleep", Options = ConfigurationPropertyOptions.IsRequired, DefaultValue = "0")]
+        [ConfigurationProperty("sleep", DefaultValue = 1000)]
         public int Sleep
         {
             get
@@ -50,6 +58,19 @@ namespace Tyng.MediaWiki.Configuration
             set
             {
                 base[_propSleep] = value;
+            }
+        }
+
+        [ConfigurationProperty("sharedSleep", DefaultValue = ApiAction.None)]
+        public ApiAction SharedSleep
+        {
+            get
+            {
+                return (ApiAction)base[_propShared];
+            }
+            set
+            {
+                base[_propShared] = value;
             }
         }
 

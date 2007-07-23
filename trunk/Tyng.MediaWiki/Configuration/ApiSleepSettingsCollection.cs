@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 
 namespace Tyng.MediaWiki.Configuration
@@ -86,9 +87,9 @@ namespace Tyng.MediaWiki.Configuration
             return this.BaseGet(action) != null;
         }
 
-        public int GetSleep(ApiAction action)
+        public ApiSleepSettings GetSleep(ApiAction action)
         {
-            return ((ApiSleepSettings)this.BaseGet(action)).Sleep;
+            return (ApiSleepSettings)this.BaseGet(action);
         }
 
         protected override ConfigurationPropertyCollection Properties
