@@ -8,6 +8,5 @@ namespace Tyng.MediaWiki
     {
         string Title { get; }
         MediaWikiNamespace Namespace { get; }
-        string FullTitle { get; }
     }
 }

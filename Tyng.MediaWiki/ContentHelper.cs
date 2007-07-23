@@ -24,5 +24,22 @@ namespace Tyng.MediaWiki
 
             return OrderedListPrefix + string.Join("\n" + OrderedListPrefix, items);
         }
+
+        public const string DateFormat = "[[yyyy-MM-dd]]";
+
+        public static string GetLink(IPage page)
+        {
+            if (page == null) throw new ArgumentNullException("page");
+
+            return string.Format("[[{0}]]", NamespaceUtility.GetFullTitle(page));
+        }
+
+        public static string GetLink(IPage page, string display)
+        {
+            if (string.IsNullOrEmpty(display)) throw new ArgumentNullException("display");
+            if (page == null) throw new ArgumentNullException("page");
+
+            return string.Format("[[{0}|{1}]]", NamespaceUtility.GetFullTitle(page), display);
+        }
     }
 }

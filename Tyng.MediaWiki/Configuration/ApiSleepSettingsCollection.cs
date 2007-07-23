@@ -44,20 +44,20 @@ namespace Tyng.MediaWiki.Configuration
 
         protected override object GetElementKey(ConfigurationElement element)
         {
-            return ((ApiSleepSettings)element).Key;
+            return ((ApiSleepSettings)element).Action;
         }
 
         public void Remove(ApiSleepSettings settings)
         {
             if (base.BaseIndexOf(settings) >= 0)
             {
-                base.BaseRemove(settings.Key);
+                base.BaseRemove(settings.Action);
             }
         }
 
-        public void Remove(string name)
+        public void Remove(ApiAction action)
         {
-            base.BaseRemove(name);
+            base.BaseRemove(action);
         }
 
         public void RemoveAt(int index)
@@ -81,14 +81,14 @@ namespace Tyng.MediaWiki.Configuration
             }
         }
 
-        public bool ContainsKey(string name)
+        public bool ContainsKey(ApiAction action)
         {
-            return this.BaseGet(name) != null;
+            return this.BaseGet(action) != null;
         }
 
-        public int GetSleep(string name)
+        public int GetSleep(ApiAction action)
         {
-            return ((ApiSleepSettings)this.BaseGet(name)).Sleep;
+            return ((ApiSleepSettings)this.BaseGet(action)).Sleep;
         }
 
         protected override ConfigurationPropertyCollection Properties

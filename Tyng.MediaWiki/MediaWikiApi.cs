@@ -15,11 +15,11 @@ namespace Tyng.MediaWiki
     
     public sealed class MediaWikiApi
     {
-        internal const string RedirectRegex = @"^\s*#REDIRECT \[\[(?<title>[^\]\|]?[^\]]*)\]\]";
-        internal const string CategoryRegex = @"\[\[Category:(?<title>[^\]\|]?[^\]]*)\]\]";
+        internal const string RedirectRegex = @"^\s*#[Rr][Ee][Dd][Ii][Rr][Ee][Cc][Tt]\s*\[\[(?<title>[^\]\|]?[^\]]*)\]\]";
+        internal const string CategoryRegex = @"\[\[[Cc][Aa][Tt][Ee][Gg][Oo][Rr][Yy]:(?<title>[^\]\|]?[^\]]*)\]\]";
         internal const string FormContentType = "application/x-www-form-urlencoded";
-        internal const string HiddenInputRegex = "type=['\"]hidden['\"] value=['\"](?<value>[^'\"]*?)['\"] name=['\"]{0}['\"]";
-        internal const string HiddenInputRegexAlt = "type=['\"]hidden['\"] name=['\"]{0}['\"] value=['\"](?<value>[^'\"]*?)['\"]";
+        internal const string HiddenInputRegex = "[Tt][Yy][Pp][Ee]=['\"][Hh][Ii][Dd][Dd][Ee][Nn]['\"] [Vv][Aa][Ll][Uu][Ee]=['\"](?<value>[^'\"]*?)['\"] [Nn][Aa][Mm][Ee]=['\"]{0}['\"]";
+        internal const string HiddenInputRegexAlt = "[Tt][Yy][Pp][Ee]=['\"][Hh][Ii][Dd][Dd][Ee][Nn]['\"] [Nn][Aa][Mm][Ee]=['\"]{0}['\"] [Vv][Aa][Ll][Uu][Ee]=['\"](?<value>[^'\"]*?)['\"]";
         internal const string EditQuery = "title={0}&action=edit";
 
         string _token;
@@ -134,20 +134,17 @@ namespace Tyng.MediaWiki
         {
             if (_isAnonymous) throw new InvalidOperationException("Cannot login from anonymous session.");
 
-            string[] parameters;
+            Dictionary<string, string> parameters = new Dictionary<string, string>(3);
 
-            user = Uri.EscapeDataString(user);
-            password = Uri.EscapeDataString(password);
+            parameters.Add("lgname", user);
+            parameters.Add("lgpassword", password);
 
-            if (string.IsNullOrEmpty(domain))
-                parameters = new string[] { "lgname=" + user, "lgpassword=" + password };
-            else
+            if (!string.IsNullOrEmpty(domain))
             {
-                domain = Uri.EscapeDataString(domain);
-                parameters = new string[] { "lgname=" + user, "lgpassword=" + password, "lgdomain=" + domain };
+                parameters.Add("lgdomain", domain);
             }
 
-            XmlDocument xml = RequestApi("login", true, parameters);
+            XmlDocument xml = RequestApi(ApiAction.Login, true, parameters);
 
             XmlElement result = (XmlElement) xml.SelectSingleNode("/api/login");
             
@@ -206,7 +203,7 @@ namespace Tyng.MediaWiki
             request.CookieContainer = new CookieContainer();
             request.CookieContainer.Add(cookies);
 
-            Sleep("query");
+            Sleep(ApiAction.Query);
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
             if (response.StatusCode != HttpStatusCode.OK)
@@ -251,7 +248,7 @@ namespace Tyng.MediaWiki
                 sw.Write("&{0}={1}", "wpSummary", Uri.EscapeDataString(editSummary));
             }
 
-            Sleep("edit");
+            Sleep(ApiAction.Submit);
 
             response = (HttpWebResponse)request.GetResponse();
             if (response.StatusCode == HttpStatusCode.Redirect)
@@ -269,7 +266,7 @@ namespace Tyng.MediaWiki
             do
             {
                 //TODO: once the edit api is implemented and it returns xml, can get rid of this...
-                xml = Page.FetchPageXml(this, "titles=" + Uri.EscapeDataString(title));
+                xml = Page.FetchPageXml(this, "titles", title);
 
                 //poll it until page is ready...
                 page = (XmlElement)xml.SelectSingleNode("/api/query/pages/page");
@@ -279,31 +276,45 @@ namespace Tyng.MediaWiki
             return xml;
         }
 
-        internal XmlDocument RequestApi(string action, params string[] parameters)
+        internal XmlDocument RequestApi(ApiAction action, Dictionary<string, string> parameters)
         {
             return RequestApi(action, _postDataAlways, parameters);
         }
 
-        internal XmlDocument RequestApi(string action, bool postData, params string[] parameters)
+        internal XmlDocument RequestApi(ApiAction action, bool postData, Dictionary<string, string> parameters)
         {
+            if (action == ApiAction.Submit)
+            {
+                throw new ArgumentException("Cannot edit through this method, call EditPage instead", "action");
+            }
+
+            if (action == ApiAction.Move)
+                throw new NotSupportedException(string.Format("Action '{0}' is not supported.", action));
+
             UriBuilder uri = new UriBuilder(CombineUrlPath(Config.Server, Config.ScriptPath, Config.ApiName));
 
-            StringBuilder sb = new StringBuilder("format=xml&action=");
-            
-            sb.Append(action);
+            Dictionary<string, string> allParams = new Dictionary<string, string>(parameters);
+            allParams["format"] = "xml";
+            allParams["action"] = ActionUtility.ActionToString(action);
 
-            for(int i = 0; i < parameters.Length; i++)
+            if (action != ApiAction.Login && !_isAnonymous && !string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_token))
             {
-                sb.Append("&");
-                sb.Append(parameters[i]);
+                allParams["lgtoken"] = _token;
+                allParams["lgusername"] = _username;
+                allParams["lguserid"] = _userId.ToString();
             }
 
-            if (!_isAnonymous && !string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_token))
+            StringBuilder sb = new StringBuilder();
+
+            foreach (KeyValuePair<string, string> kvp in allParams)
             {
-                sb.AppendFormat("&lgtoken={0}&lgusername={1}&lguserid={2}", _token, _username, _userId);
+                if (kvp.Value == null)
+                    sb.AppendFormat("&{0}", kvp.Key);
+                else
+                    sb.AppendFormat("&{0}={1}", kvp.Key, Uri.EscapeDataString(kvp.Value));
             }
 
-            if (!postData)  uri.Query = sb.ToString();
+            if (!postData) uri.Query = sb.ToString();
 
             HttpWebRequest request = PrepareRequest(postData ? "POST" : "GET", uri.ToString());
             
@@ -352,15 +363,15 @@ namespace Tyng.MediaWiki
         }
 
         #region Request Timers
-        static Dictionary<string, AutoResetEvent> _syncs = new Dictionary<string, AutoResetEvent>();
+        static Dictionary<ApiAction, AutoResetEvent> _syncs = new Dictionary<ApiAction, AutoResetEvent>();
 
-        private static void Sleep(string sleepType)
+        private static void Sleep(ApiAction sleepType)
         {
             if (!Config.Sleep.ContainsKey(sleepType)) throw new ArgumentException("Unexpected sleep type", "sleepType");
 
             int sleepTime = Config.Sleep.GetSleep(sleepType);
 
-            if (sleepTime == 0) return;
+            if (sleepTime < 1000) throw new InvalidOperationException("All sleep times must be >= 1000 (1 second).");
 
             AutoResetEvent reset = null;
             lock (_syncs)

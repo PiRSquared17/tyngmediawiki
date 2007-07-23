@@ -26797,7 +26797,8 @@ FROM         STATEM AS sm INNER JOIN
 WHERE     (pm.refnum IN
                           (SELECT     refnum
                             FROM          COUNTYD
-                            WHERE      (countycd = @countycd))) AND (pm.certcd IN ('LI', 'NL', 'UN')) AND (pm.ArticleID IS NULL) AND (pm.MainArticleRefnum IS NULL)
+                            WHERE      (countycd like @countycd))) AND (pm.certcd IN ('LI', 'NL', 'UN')) AND (pm.ArticleID IS NULL) AND (pm.MainArticleRefnum IS NULL)
+
 ORDER BY pm.resname";
             this._commandCollection[2].CommandType = System.Data.CommandType.Text;
             this._commandCollection[2].Parameters.Add(new System.Data.SqlClient.SqlParameter("@countycd", System.Data.SqlDbType.VarChar, 6, System.Data.ParameterDirection.Input, 0, 0, "", System.Data.DataRowVersion.Current, false, null, "", "", ""));
