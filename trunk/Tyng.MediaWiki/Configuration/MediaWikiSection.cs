@@ -40,9 +40,12 @@ namespace Tyng.MediaWiki.Configuration
         {
             base.InitializeDefault();
 
-            Sleep.Add(new ApiSleepSettings("query", 5000));
-            Sleep.Add(new ApiSleepSettings("edit", 60000));
-            Sleep.Add(new ApiSleepSettings("login", 60000));
+            Sleep.Add(new ApiSleepSettings(ApiAction.Query, 5000));
+            Sleep.Add(new ApiSleepSettings(ApiAction.Submit, 60000));
+            Sleep.Add(new ApiSleepSettings(ApiAction.Login, 60000));
+            Sleep.Add(new ApiSleepSettings(ApiAction.FeedWatchlist, 60000));
+            Sleep.Add(new ApiSleepSettings(ApiAction.OpenSearch, 5000));
+            Sleep.Add(new ApiSleepSettings(ApiAction.Help, 5000));
         }
 
         protected override object GetRuntimeObject()

@@ -43,6 +43,7 @@
     <Compile Include="..\Tyng-AssemblyInfo.cs">
       <Link>Properties\Tyng-AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Action.cs" />
     <Compile Include="ContentHelper.cs" />
     <Compile Include="Objects\Category.cs" />
     <Compile Include="Configuration\ApiSleepSettings.cs" />
@@ -58,6 +59,8 @@
     <Compile Include="MediaWikiApi.cs" />
     <Compile Include="MediaWikiException.cs" />
     <Compile Include="Namespace.cs" />
+    <Compile Include="Objects\Link.cs" />
+    <Compile Include="Objects\LinkCollection.cs" />
     <Compile Include="Objects\Page.cs" />
     <Compile Include="Objects\PageRevision.cs" />
     <Compile Include="Objects\PageSectionCollection.cs" />

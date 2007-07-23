@@ -17,7 +17,7 @@ namespace NRHPStubber
             NrhpDatabase db = new NrhpDatabase();
 
             NrhpDatabaseTableAdapters.PROPMAINTableAdapter pmta = new NRHPStubber.NrhpDatabaseTableAdapters.PROPMAINTableAdapter();
-            pmta.FillByCountyToCreate(db.PROPMAIN, "OH0061");
+            pmta.FillByCountyToCreate(db.PROPMAIN, "OH%");
 
             NrhpDatabaseTableAdapters.OTHNAMEDTableAdapter onta = new NRHPStubber.NrhpDatabaseTableAdapters.OTHNAMEDTableAdapter();
             onta.Fill(db.OTHNAMED);
@@ -38,9 +38,9 @@ namespace NRHPStubber
                 NrhpDatabase.PROPMAINRow dr = pmdt[i];
 
                 int percent = (i / pmdt.Rows.Count) * 100;
-                
-                //bwFindMatches.ReportProgress(percent, string.Format("Checking \"{0}\", google search \"{1}\"", dr.resname, dr.refnum));
-                //GoogleSearch("REFNUM", "nrhp " + dr.refnum.ToString(), dr.refnum);
+
+                bwFindMatches.ReportProgress(percent, string.Format("Checking \"{0}\", google search \"{1}\"", dr.resname, dr.refnum));
+                GoogleSearch(db, "REFNUM", "nrhp " + dr.refnum.ToString(), dr.refnum);
 
                 if (!dr.IsCleanNameNull())
                 {

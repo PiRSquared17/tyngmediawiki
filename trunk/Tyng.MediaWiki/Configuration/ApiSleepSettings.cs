@@ -5,7 +5,7 @@ namespace Tyng.MediaWiki.Configuration
 {
     public sealed class ApiSleepSettings : ConfigurationElement
     {
-        private static readonly ConfigurationProperty _propName = new ConfigurationProperty("name", typeof(string), null, null, new StringValidator(1), ConfigurationPropertyOptions.IsKey | ConfigurationPropertyOptions.IsRequired);
+        private static readonly ConfigurationProperty _propName = new ConfigurationProperty("action", typeof(ApiAction), null, null, null, ConfigurationPropertyOptions.IsKey | ConfigurationPropertyOptions.IsRequired);
         private static readonly ConfigurationProperty _propSleep = new ConfigurationProperty("sleep", typeof(int), null, null, new IntegerValidator(0, int.MaxValue), ConfigurationPropertyOptions.IsRequired);
         private static ConfigurationPropertyCollection _properties = new ConfigurationPropertyCollection();
 
@@ -21,26 +21,18 @@ namespace Tyng.MediaWiki.Configuration
         {
         }
 
-        public ApiSleepSettings(string name, int sleep)
+        public ApiSleepSettings(ApiAction action, int sleep)
         {
-            this.Name = name;
+            this.Action = action;
             this.Sleep = sleep;
         }
 
-        internal string Key
+        [ConfigurationProperty("action", Options = ConfigurationPropertyOptions.IsKey | ConfigurationPropertyOptions.IsRequired)]
+        public ApiAction Action
         {
             get
             {
-                return this.Name;
-            }
-        }
-
-        [ConfigurationProperty("name", Options = ConfigurationPropertyOptions.IsKey | ConfigurationPropertyOptions.IsRequired, DefaultValue = "")]
-        public string Name
-        {
-            get
-            {
-                return (string)base[_propName];
+                return (ApiAction)base[_propName];
             }
             set
             {

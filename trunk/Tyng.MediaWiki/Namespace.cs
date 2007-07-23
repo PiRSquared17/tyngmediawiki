@@ -6,7 +6,7 @@ namespace Tyng.MediaWiki
 {
     internal static class NamespaceUtility
     {
-        public static string StripNamespace(MediaWikiNamespace ns, string title)
+        internal static string StripNamespace(MediaWikiNamespace ns, string title)
         {
             if (ns == MediaWikiNamespace.Main) return title;
 
@@ -16,7 +16,19 @@ namespace Tyng.MediaWiki
             return title;
         }
 
-        public static string NamespaceToPrefix(MediaWikiNamespace ns)
+        internal static string GetFullTitle(IPage page)
+        {
+            if (page == null) throw new ArgumentNullException("page");
+
+            return GetFullTitle(page.Namespace, page.Title);
+        }
+
+        internal static string GetFullTitle(MediaWikiNamespace ns, string title)
+        {
+            return NamespaceToPrefix(ns) + title;
+        }
+
+        internal static string NamespaceToPrefix(MediaWikiNamespace ns)
         {
             switch (ns)
             {

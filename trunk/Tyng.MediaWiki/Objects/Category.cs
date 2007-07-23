@@ -5,6 +5,7 @@ using Tyng.ComponentModel;
 
 namespace Tyng.MediaWiki
 {
+    //TODO: inherit from link?
     [Serializable]
     public sealed class Category : BusinessObject<Category>, IPage
     {
@@ -19,7 +20,7 @@ namespace Tyng.MediaWiki
             return o;
         }
 
-        public Category GetCategory(string name)
+        public static Category GetCategory(string name)
         {
             name = NamespaceUtility.StripNamespace(MediaWikiNamespace.Category, name);
             Category o = new Category();
@@ -46,16 +47,11 @@ namespace Tyng.MediaWiki
             get { return MediaWikiNamespace.Category; }
         }
 
-        public string FullTitle
-        {
-            get { return NamespaceUtility.NamespaceToPrefix(MediaWikiNamespace.Category) + Title; }
-        }
-
         #endregion
 
         internal void RenderContent(System.Text.StringBuilder sb)
         {
-            sb.AppendFormat("[[{0}]]\n", this.FullTitle);
+            sb.AppendFormat("[[{0}]]\n", NamespaceUtility.GetFullTitle(this));
         }
     }
 

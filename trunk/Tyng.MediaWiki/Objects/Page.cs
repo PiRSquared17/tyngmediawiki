@@ -30,6 +30,11 @@ namespace Tyng.MediaWiki
             return GetPage(MediaWikiApi.GetDefault(), fullTitle);
         }
 
+        public static Page GetPage(MediaWikiNamespace ns, string title)
+        {
+            return GetPage(MediaWikiApi.GetDefault(), ns, title);
+        }
+
         public static Page GetPage(int id)
         {
             return GetPage(MediaWikiApi.GetDefault(), id);
@@ -47,13 +52,21 @@ namespace Tyng.MediaWiki
 
         private static Page GetPage(MediaWikiApi api, string fullTitle)
         {
-            fullTitle = Uri.EscapeDataString(fullTitle);
-            return GetPage((XmlElement)FetchPageNodes(api, "titles=" + fullTitle)[0]);
+            if (string.IsNullOrEmpty(fullTitle)) throw new ArgumentNullException("fullTitle");
+
+            return GetPage((XmlElement)FetchPageNodes(api, "titles", fullTitle)[0]);
+        }
+
+        private static Page GetPage(MediaWikiApi api, MediaWikiNamespace ns, string title)
+        {
+            if (string.IsNullOrEmpty(title)) throw new ArgumentNullException("title");
+
+            return GetPage((XmlElement)FetchPageNodes(api, "titles", NamespaceUtility.NamespaceToPrefix(ns) + title)[0]);
         }
 
         private static Page GetPage(MediaWikiApi api, int id)
         {
-            return GetPage((XmlElement)FetchPageNodes(api, "pageids=" + id)[0]);
+            return GetPage((XmlElement)FetchPageNodes(api, "pageids", id.ToString())[0]);
         }
 
         internal static Page GetPage(XmlElement pageElement)
@@ -64,14 +77,20 @@ namespace Tyng.MediaWiki
             return p;
         }
 
-        internal static XmlDocument FetchPageXml(MediaWikiApi api, string param)
+        internal static XmlDocument FetchPageXml(MediaWikiApi api, string param, string paramValue)
         {
-            return api.RequestApi("query", "prop=revisions|info", "rvprop=timestamp|user|comment|content", "rvlimit=1", param);
+            Dictionary<string, string> parameters = new Dictionary<string, string>(3);
+            parameters.Add(param, paramValue);
+            parameters.Add("prop", "revisions|info");
+            parameters.Add("rvprop", "timestamp|user|comment|content");
+            parameters.Add("rvlimit", "1");
+
+            return api.RequestApi(ApiAction.Query, parameters);
         }
 
-        private static XmlNodeList FetchPageNodes(MediaWikiApi api, string param)
+        private static XmlNodeList FetchPageNodes(MediaWikiApi api, string param, string paramValue)
         {
-            XmlDocument xml = FetchPageXml(api, param);
+            XmlDocument xml = FetchPageXml(api, param, paramValue);
             return xml.SelectNodes("/api/query/pages/page");
         }
         
@@ -106,6 +125,31 @@ namespace Tyng.MediaWiki
         }
         #endregion
 
+        public LinkCollection WhatLinksHere()
+        {
+            return WhatLinksHere(MediaWikiApi.GetDefault());
+        }
+
+        public LinkCollection WhatLinksHere(string loginName)
+        {
+            return WhatLinksHere(MediaWikiApi.GetMediaWikiApi(loginName));
+        }
+
+        public LinkCollection WhatLinksHere(MediaWikiApi api)
+        {
+            Dictionary<string, string> parameters = new Dictionary<string, string>(3);
+
+            parameters.Add("list", "backlinks");
+            parameters.Add("bltitle", NamespaceUtility.GetFullTitle(this));
+            parameters.Add("bllimit", "500"); //TODO:I think 5000 is limit for bot?
+
+            XmlDocument xml = api.RequestApi(ApiAction.Query, parameters);
+
+            XmlNodeList backLinks = xml.SelectNodes("/api/query/backlinks/bl");
+
+            return LinkCollection.GetLinkCollection(backLinks);
+        }
+
         public Page FollowRuntimeRedirects(string login)
         {
             return FollowRuntimeRedirects(MediaWikiApi.GetMediaWikiApi(login));
@@ -123,13 +167,13 @@ namespace Tyng.MediaWiki
 
         private Page FollowRuntimeRedirectsInternal(MediaWikiApi api, Stack<string> redirects)
         {
-            if (redirects.Contains(FullTitle)) throw new InvalidOperationException("Circular redirect detected.");
+            if (redirects.Contains(NamespaceUtility.GetFullTitle(this))) throw new InvalidOperationException("Circular redirect detected.");
 
             if (Config.MaxRedirectFollow == 0 || !LastRevision.IsRedirect) return this;
 
             if (Config.MaxRedirectFollow == redirects.Count) throw new InvalidOperationException("Long redirect chain detected.");
 
-            redirects.Push(FullTitle);
+            redirects.Push(NamespaceUtility.GetFullTitle(this));
             Page redirectTo = Page.GetPage(api, LastRevision.RedirectTitle);
             
             return redirectTo.FollowRuntimeRedirectsInternal(api, redirects);
@@ -157,7 +201,7 @@ namespace Tyng.MediaWiki
                 string content = _newRevision.GetContent();
 
                 //TODO: individual section edits...
-                XmlDocument xml = api.EditPage(FullTitle, _newRevision.GetContent(), _newRevision.Comment, _newRevision.IsMinor);
+                XmlDocument xml = api.EditPage(NamespaceUtility.GetFullTitle(this), _newRevision.GetContent(), _newRevision.Comment, _newRevision.IsMinor);
                 _saved = true;
                 //TODO: need to clean this up a bit, move to a dataportal esque style of loading
                 return GetPage((XmlElement) xml.SelectSingleNode("/api/query/pages/page"));
@@ -186,14 +230,6 @@ namespace Tyng.MediaWiki
         public string Title { get { return _title; } }
         public MediaWikiNamespace Namespace { get { return _ns; } }
         public int? Id { get { return _id; } }
-
-        public string FullTitle
-        {
-            get
-            {
-                return NamespaceUtility.NamespaceToPrefix(Namespace) + Title;
-            }
-        }
 
         public int Counter
         {

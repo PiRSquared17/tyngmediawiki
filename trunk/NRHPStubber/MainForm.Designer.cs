@@ -28,7 +28,6 @@ namespace NRHPStubber
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.StatusStrip status;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -90,7 +89,7 @@ namespace NRHPStubber
             // 
             this.tstbCounty.Name = "tstbCounty";
             this.tstbCounty.Size = new System.Drawing.Size(50, 25);
-            this.tstbCounty.Text = "OH0061";
+            this.tstbCounty.Text = "OH%";
             // 
             // tsbStubCounty
             // 
