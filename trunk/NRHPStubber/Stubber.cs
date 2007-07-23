@@ -44,7 +44,7 @@ namespace NRHPStubber
 
             NrhpDatabaseTableAdapters.ARSTYLDTableAdapter asdta = new NRHPStubber.NrhpDatabaseTableAdapters.ARSTYLDTableAdapter();
             asdta.Fill(db.ARSTYLD);
-            
+
             NrhpDatabaseTableAdapters.PossibleArticlesTableAdapter pata = new NRHPStubber.NrhpDatabaseTableAdapters.PossibleArticlesTableAdapter();
             pata.Fill(db.PossibleArticles);
 
@@ -63,9 +63,9 @@ namespace NRHPStubber
                 string fullTitle;
 
                 if (pm.IsCleanNameNull())
-                    redirTitle = pm.resname;
+                    redirTitle = pm.resname.Trim();
                 else
-                    redirTitle = pm.CleanName;
+                    redirTitle = pm.CleanName.Trim();
 
                 if (redirTitle.IndexOf('(') >= 0)
                 {
@@ -88,79 +88,101 @@ namespace NRHPStubber
                         fullTitle = string.Format("{0} ({1}, {2})", redirTitle, inStateLocation, ti.ToTitleCase(ti.ToLower(pm.PrimaryState)));
                 }
 
+                Page talk;
                 Page p = Page.GetPage(fullTitle);
-                if (!p.IsMissing) throw new Exception("Page exists in current location");
-
-                StubSingleArticle(db, pm.refnum, p.NewRevision);
-
-                p.NewRevision.Comment = "New article stub created from NRIS database";
-                p = p.Save();
-
-                //req photo
-                Page talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
-                if (talk.IsMissing)
+                if (!p.IsMissing)
                 {
-                    if(pm.PrimaryVicinity)
-                        talk.NewRevision.AppendContent(string.Format("{{{{reqphotoin|{0}}}}}", ti.ToTitleCase(ti.ToLower(pm.PrimaryState))));
-                    else
-                        talk.NewRevision.AppendContent(string.Format("{{{{reqphotoin|{0}, {1}|{1}}}}}", ti.ToTitleCase(ti.ToLower(pm.PrimaryCity)), ti.ToTitleCase(ti.ToLower(pm.PrimaryState))));
+                    talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
 
-                    talk.NewRevision.AppendContent("{{WikiProject National Register of Historic Places|class=stub}}");
+                    talk.NewRevision.Categories.Add("NrhpBot Articles for Review");
+                    talk.NewRevision.Comment = "tagging for review";
+                    PageSection newSection = talk.NewRevision.Sections.Add("Bot Infobox", 1, "Below is the bot generated infobox in case someone wants to use it to clean up this page:\n\n");
+                    newSection.AppendContent(GetInfobox(db, pm.refnum, new Dictionary<string, string>(), redirTitle));
 
-                    talk.NewRevision.Comment = "Adding reqphotoin and wikiproject templates";
-                    talk = talk.Save();
-                }
+                    talk.Save();
 
-                log.AppendFormat("[[{1}]] ([[Special:Whatlinkshere/{1}|links]], [{{{{fullurl:{1}|action=history}}}} history]) stub created.  ", DateTime.Now, p.Title);
-
-                pm.BeginEdit();
-                pm.ArticleID = p.Id.Value;
-                pm.EndEdit();
-
-                pmta.Update(pm);
-
-                if (fullTitle == redirTitle)
-                {
-                    LinkCollection wlh = p.WhatLinksHere();
-
-                    if (wlh.Count != 1 || !wlh[0].Title.StartsWith("List of Registered Historic Places in "))
-                    {
-                        talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
-
-                        talk.NewRevision.Categories.Add("NrhpBot Articles for Review]]");
-                        talk.NewRevision.Comment = "Tagging for NRHP review";
-                        talk = talk.Save();
-                    }
+                    log.AppendFormat("Page [[{0}]] already exists, tagging talk for review.", fullTitle);
                 }
                 else
                 {
-                    p = Page.GetPage(redirTitle);
 
-                    if (p.IsMissing)
+                    StubSingleArticle(db, pm.refnum, p.NewRevision);
+
+                    p.NewRevision.Comment = "New article stub created from NRIS database";
+                    p = p.Save();
+
+                    //req photo
+                    talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
+                    if (talk.IsMissing)
+                    {
+                        if (pm.PrimaryVicinity)
+                            talk.NewRevision.AppendContent(string.Format("{{{{reqphotoin|{0}}}}}", ti.ToTitleCase(ti.ToLower(pm.PrimaryState))));
+                        else
+                            talk.NewRevision.AppendContent(string.Format("{{{{reqphotoin|{0}, {1}|{1}}}}}", ti.ToTitleCase(ti.ToLower(pm.PrimaryCity)), ti.ToTitleCase(ti.ToLower(pm.PrimaryState))));
+
+                        talk.NewRevision.AppendContent("{{WikiProject National Register of Historic Places|class=stub}}");
+
+                        talk.NewRevision.Comment = "Adding reqphotoin and wikiproject templates";
+                        talk = talk.Save();
+                    }
+
+                    log.AppendFormat("[[{1}]] ([[Special:Whatlinkshere/{1}|links]], [{{{{fullurl:{1}|action=history}}}} history]) stub created.  ", DateTime.Now, p.Title);
+
+                    pm.BeginEdit();
+                    pm.ArticleID = p.Id.Value;
+                    pm.EndEdit();
+
+                    pmta.Update(pm);
+
+                    if (fullTitle == redirTitle)
                     {
                         LinkCollection wlh = p.WhatLinksHere();
 
-                        p.NewRevision.RedirectTitle = fullTitle;
-                        p.NewRevision.Comment = "Redirct to geo specific title by bot, contact [[User:Paultyng]] for info";
-                        p = p.Save();
+                        if (wlh.Count != 1 || !wlh[0].Title.StartsWith("List of Registered Historic Places in "))
+                        {
+                            talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
 
-                        talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
-
-                        talk.NewRevision.AppendContent("{{WikiProject National Register of Historic Places|class=redirect}}");
-                        if (wlh.Count != 1 || !wlh[0].Title.StartsWith("List of Registered Historic Places in ")) talk.NewRevision.Categories.Add("NrhpBot Articles for Review");
-                        talk.NewRevision.Comment = "Adding wikiproject template";
-                        talk = talk.Save();
-
-                        log.AppendFormat("[[{0}]] redirect added.", p.Title);
-
+                            talk.NewRevision.Categories.Add("NrhpBot Articles for Review");
+                            talk.NewRevision.Comment = "Tagging for NRHP review";
+                            talk.NewRevision.Sections.Add("Nrhp Review", 1, "This page appears to either have multiple or 0 links from pages whose names are like 'List of Registered Historic Places in *' ~~~~");
+                            talk = talk.Save();
+                        }
                     }
                     else
                     {
-                        talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
+                        p = Page.GetPage(redirTitle);
 
-                        talk.NewRevision.Categories.Add("NrhpBot Articles for Review");
-                        talk.NewRevision.Comment = "Tagging for NRHP review";
-                        talk = talk.Save();
+                        if (p.IsMissing)
+                        {
+                            LinkCollection wlh = p.WhatLinksHere();
+
+                            p.NewRevision.RedirectTitle = fullTitle;
+                            p.NewRevision.Comment = "Redirct to geo specific title by bot, contact [[User:Paultyng]] for info";
+                            p = p.Save();
+
+                            talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
+
+                            talk.NewRevision.AppendContent("{{WikiProject National Register of Historic Places|class=redirect}}");
+                            if (wlh.Count != 1 || !wlh[0].Title.StartsWith("List of Registered Historic Places in "))
+                            {
+                                talk.NewRevision.Categories.Add("NrhpBot Articles for Review");
+                                talk.NewRevision.Sections.Add("Nrhp Review", 1, "This page appears to either have multiple or 0 links from pages whose names are like 'List of Registered Historic Places in *' ~~~~");
+                            }
+                            talk.NewRevision.Comment = "Adding wikiproject template";
+                            talk = talk.Save();
+
+                            log.AppendFormat("[[{0}]] redirect added.", p.Title);
+
+                        }
+                        else
+                        {
+                            talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
+
+                            talk.NewRevision.Categories.Add("NrhpBot Articles for Review");
+                            talk.NewRevision.Comment = "Tagging for NRHP review";
+                            talk.NewRevision.Sections.Add("Nrhp Review", 1, "This page was preexisting before the bot run, it may need to be redirected or disambiguated with '" + fullTitle + "'. ~~~~");
+                            talk = talk.Save();
+                        }
                     }
                 }
 
@@ -169,13 +191,13 @@ namespace NRHPStubber
                 log = new StringBuilder();
             }
 
-            
+
         }
 
         private static void WriteLog(string log, DateTime date)
         {
             Page logPage = Page.GetPage(string.Format("User:NrhpBot/Logs/{0:yyyy}/{0:MMMM}/{0:dd}", date));
-            
+
             logPage.NewRevision.AppendContent(string.Format("\n* {0:" + ContentHelper.DateFormat + " HH:mm:ss} - {1}", date, log));
             logPage.NewRevision.Comment = "Adding logs for new run";
 
@@ -188,7 +210,7 @@ namespace NRHPStubber
             PageSection daySection = sections.Find(string.Format("{0:yyyy}/{0:MMMM}/{0:dd}", date));
             int index;
 
-            if (daySection != null) 
+            if (daySection != null)
                 return;
             else if (monthSection != null)
             {
@@ -306,41 +328,16 @@ namespace NRHPStubber
             transcludePage.Save();
         }
 
-        public static void StubSingleArticle(NrhpDatabase db, int refnum, PageRevision newRevision)
+        private static string GetInfobox(NrhpDatabase db, int refnum, Dictionary<string, string> cites, string name)
         {
             TextInfo ti = CultureInfo.CreateSpecificCulture("en").TextInfo;
 
             NrhpDatabase.PROPMAINRow r = db.PROPMAIN.FindByrefnum(refnum);
-            Dictionary<string, string> cites = new Dictionary<string, string>();
             bool historicDistrict = r.retypecd == "D"; //D = District
             bool landmark = r.certcd == "NL"; //NL = Designated National Landmark
             NrhpDatabase.GEOCODEMRow geocode = r.GEOCODEMRow;
 
-            StringBuilder sb = new StringBuilder("<!-- This article was automatically created by [[User:NrhpBot]] from the [http://www.nr.nps.gov/ NRIS Database]. The prose may be stilted, and there may be grammatical and Wikification errors. Please improve in any way you see fit.  Contact [[User:Paultyng]] if you want to enhance the stub template. -->\n");
-
-            sb.Append("<!-- \n");
-            if (!r.IsCleanNameNull())
-            {
-                sb.AppendFormat("\tOriginal Name:\t\"{0}\"\n", r.resname);
-            }
-
-            sb.AppendFormat("\tMain Address:\t\"{0}\"\n", r.address);
-            if (geocode != null)
-            {
-
-                sb.AppendFormat("\tGeocode Data:\n\t\tAddress:\t\"{0}\" from \"{1}\"\n\t\tCity:\t\"{2}\" from \"{3}\"\n\t\tState:\t\"{4}\" from \"{5}\"\n\t\tZip:\t\"{6}-{7}\" from \"{8}\"\n", geocode.IsgdtsadNull() ? "" : geocode.gdtsad, geocode.address, geocode.IsgdtcityNull() ? "" : geocode.gdtcity, geocode.city, geocode.IsgdtstatecdNull() ? "" : geocode.gdtstatecd, geocode.IsstatecdNull() ? "" : geocode.statecd, geocode.IsgdtpcodeNull() ? "" : geocode.gdtpcode, geocode.Isgdtplus4Null() ? "" : geocode.gdtplus4, geocode.IszipNull() ? "" : geocode.zip);
-            }   
-
-            sb.Append("-->\n{{Infobox nrhp\n  | name = ");
-
-            string name;
-
-            if (r.IsCleanNameNull())
-                name = r.resname;
-            else
-                name = r.CleanName;
-
-            name = name.Trim();
+            StringBuilder sb = new StringBuilder("{{Infobox nrhp\n  | name = ");
 
             sb.AppendLine(name);
 
@@ -406,8 +403,8 @@ namespace NRHPStubber
             {
                 for (int i = 0; i < owners.Length; i++)
                 {
-                    if(i > 0 && i < owners.Length - 1) sb.Append(", ");
-                    if(i == owners.Length - 1 && i > 0) sb.Append(" and ");
+                    if (i > 0 && i < owners.Length - 1) sb.Append(", ");
+                    if (i == owners.Length - 1 && i > 0) sb.Append(" and ");
 
                     sb.Append(ti.ToTitleCase(ti.ToLower(owners[i].OWNERMRow.owner)));
                 }
@@ -437,7 +434,50 @@ namespace NRHPStubber
             sb.AppendFormat("\n  | refnum = {0}", r.refnum);
             NrisCite(cites, sb);
 
-            sb.AppendFormat("\n}}}}\n'''{0}''' is a registered historic {1} {2}[[{3}, {4}|{3}]], [[{4}]], listed in the [[National Register of Historic Places|National Register]] on {5:" + ContentHelper.DateFormat + "}.  ", name, ti.ToLower(r.RETYPEMRow.retype), (r.PrimaryVicinity ? "near " : "in "), r.PrimaryCity, ti.ToTitleCase(ti.ToLower(r.PrimaryState)), r.certdate);
+            sb.Append("\n}}");
+
+            return sb.ToString();
+        }
+
+        public static void StubSingleArticle(NrhpDatabase db, int refnum, PageRevision newRevision)
+        {
+            TextInfo ti = CultureInfo.CreateSpecificCulture("en").TextInfo;
+
+            NrhpDatabase.PROPMAINRow r = db.PROPMAIN.FindByrefnum(refnum);
+            bool historicDistrict = r.retypecd == "D"; //D = District
+            bool landmark = r.certcd == "NL"; //NL = Designated National Landmark
+            NrhpDatabase.GEOCODEMRow geocode = r.GEOCODEMRow;
+            Dictionary<string, string> cites = new Dictionary<string, string>();
+
+            string name;
+
+            if (r.IsCleanNameNull())
+                name = r.resname;
+            else
+                name = r.CleanName;
+
+            name = name.Trim();
+
+            StringBuilder sb = new StringBuilder("<!-- This article was automatically created by [[User:NrhpBot]] from the [http://www.nr.nps.gov/ NRIS Database]. The prose may be stilted, and there may be grammatical and Wikification errors. Please improve in any way you see fit.  Contact [[User:Paultyng]] if you want to enhance the stub template. -->\n");
+
+            sb.Append("<!-- \n");
+            if (!r.IsCleanNameNull())
+            {
+                sb.AppendFormat("\tOriginal Name:\t\"{0}\"\n", r.resname);
+            }
+
+            sb.AppendFormat("\tMain Address:\t\"{0}\"\n", r.address);
+            if (geocode != null)
+            {
+
+                sb.AppendFormat("\tGeocode Data:\n\t\tAddress:\t\"{0}\" from \"{1}\"\n\t\tCity:\t\"{2}\" from \"{3}\"\n\t\tState:\t\"{4}\" from \"{5}\"\n\t\tZip:\t\"{6}-{7}\" from \"{8}\"\n", geocode.IsgdtsadNull() ? "" : geocode.gdtsad, geocode.address, geocode.IsgdtcityNull() ? "" : geocode.gdtcity, geocode.city, geocode.IsgdtstatecdNull() ? "" : geocode.gdtstatecd, geocode.IsstatecdNull() ? "" : geocode.statecd, geocode.IsgdtpcodeNull() ? "" : geocode.gdtpcode, geocode.Isgdtplus4Null() ? "" : geocode.gdtplus4, geocode.IszipNull() ? "" : geocode.zip);
+            }
+
+            sb.Append("-->\n");
+
+            sb.Append(GetInfobox(db, refnum, cites, name));
+
+            sb.AppendFormat("\n'''{0}''' is a registered historic {1} {2}[[{3}, {4}|{3}]], [[{4}]], listed in the [[National Register of Historic Places|National Register]] on {5:" + ContentHelper.DateFormat + "}.  ", name, ti.ToLower(r.RETYPEMRow.retype), (r.PrimaryVicinity ? "near " : "in "), r.PrimaryCity, ti.ToTitleCase(ti.ToLower(r.PrimaryState)), r.certdate);
             if (historicDistrict && !r.IsnumcbldgNull() && r.numcbldg > 0) sb.AppendFormat("It contains {0} contributing buildings.  ", r.numcbldg);
 
             newRevision.Sections.Add(sb.ToString()); //add overview
@@ -466,7 +506,7 @@ namespace NRHPStubber
                     sb.AppendFormat("* {0}\n", ContentHelper.GetLink(seeAlsoPage));
                 }
 
-                if(sb.Length > 0)
+                if (sb.Length > 0)
                 {
                     newRevision.Sections.Add("See also", 1, sb.ToString());
                     sb = new StringBuilder();
@@ -476,8 +516,8 @@ namespace NRHPStubber
             sb.Append("{{reflist}}\n\n");
 
             string stubTemplateName;
-            
-            if(!historicDistrict)
+
+            if (!historicDistrict)
                 stubTemplateName = string.Format("{0}-{1}-NRHP-struct-stub", ti.ToTitleCase(ti.ToLower(r.PrimaryState)), ti.ToTitleCase(ti.ToLower(r.PrimaryCounty)));
             else
                 stubTemplateName = string.Format("{0}-{1}-NRHP-dist-stub", ti.ToTitleCase(ti.ToLower(r.PrimaryState)), ti.ToTitleCase(ti.ToLower(r.PrimaryCounty)));
