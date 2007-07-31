@@ -13,8 +13,8 @@ namespace NRHPStubber
     {
         public static void CreateDisambigs()
         {
-            const int low = 20;
-            const int high = 30;
+            const int low = 10;
+            const int high = 20000;
 
             List<string> toCreate = new List<string>();
 
@@ -94,17 +94,36 @@ namespace NRHPStubber
             }
             else
             {
-                Page talk = Page.GetPage(MediaWikiNamespace.MainTalk, name);
-
-                if(talk.IsMissing || ! talk.LastRevision.Categories.Contains(Stubber.CategoryAfR))
+                Page dis = Page.GetPage(MediaWikiNamespace.Main, p.Title + " (disambiguation)");
+                if (!dis.IsMissing)
                 {
-                    talk.NewRevision.Categories.Add(Stubber.CategoryAfR);
-                    talk.NewRevision.Sections.Add("Nrhp Review", 1, "This page should be an Nrhp disambiguation page, please confirm that it is. It should contain the following links:\n");
-                    talk.NewRevision.AppendContent(ContentHelper.ToUnorderedList(items.ToArray()));
-                    talk.NewRevision.Comment = "Tagging for review";
-                    talk = talk.Save();
+                    Page talk = Page.GetPage(MediaWikiNamespace.MainTalk, dis.Title);
 
-                    Stubber.WriteLog(string.Format("Page already exists at [[{0}]] flagged for review.", p.Title), DateTime.Now);
+                    if (talk.IsMissing || (!talk.LastRevision.Categories.Contains(Stubber.CategoryAfR) && !talk.LastRevision.Categories.Contains("Dab-Class National Register of Historic Places articles")))
+                    {
+                        talk.NewRevision.Categories.Add(Stubber.CategoryAfR);
+                        talk.NewRevision.Sections.Add("Nrhp Review", 1, "This page should be an Nrhp disambiguation page, please confirm that it is. It should contain the following links:\n");
+                        talk.NewRevision.AppendContent(ContentHelper.ToUnorderedList(items.ToArray()));
+                        talk.NewRevision.Comment = "Tagging for review";
+                        talk = talk.Save();
+
+                        Stubber.WriteLog(string.Format("Page already exists at [[{0}]] flagged for review.", p.Title), DateTime.Now);
+                    }
+                }
+                else
+                {
+                    Page talk = Page.GetPage(MediaWikiNamespace.MainTalk, p.Title);
+
+                    if (talk.IsMissing || (!talk.LastRevision.Categories.Contains(Stubber.CategoryAfR) && !talk.LastRevision.Categories.Contains("Dab-Class National Register of Historic Places articles")))
+                    {
+                        talk.NewRevision.Categories.Add(Stubber.CategoryAfR);
+                        talk.NewRevision.Sections.Add("Nrhp Review", 1, "This page should be an Nrhp disambiguation page, please confirm that it is. It should contain the following links:\n");
+                        talk.NewRevision.AppendContent(ContentHelper.ToUnorderedList(items.ToArray()));
+                        talk.NewRevision.Comment = "Tagging for review";
+                        talk = talk.Save();
+
+                        Stubber.WriteLog(string.Format("Page already exists at [[{0}]] flagged for review.", p.Title), DateTime.Now);
+                    }
                 }
             }
         }
