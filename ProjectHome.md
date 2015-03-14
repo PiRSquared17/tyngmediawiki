@@ -1,0 +1,1 @@
+A C# interface to the MediaWiki API, useful for writing bots for Wikipedia and other MediaWiki applications.
